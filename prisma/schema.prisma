@@ -17,18 +17,29 @@ enum MemberStatus {
   INACTIVE
 }
 
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+}
+
 model Member {
   id        Int          @id @default(autoincrement())
   fullName  String
   rut       String       @unique
   rutMasked String
   affiliate String?
+  gender    Gender?
   status    MemberStatus @default(ACTIVE)
 
   token     String       @unique
 
   createdAt DateTime     @default(now())
   updatedAt DateTime @default(now()) @updatedAt
+
+  // Auditoría de importación
+  lastImportAt DateTime? // 
+  importSource String?   // (ej: "FENATS OCTAVA ARAUCO 12/2025")
 
   @@index([token])
   @@index([status])

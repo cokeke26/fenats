@@ -1,14 +1,41 @@
+import "dotenv/config";
+import path from "node:path";
 import express from "express";
 import type { Request, Response } from "express";
 import QRCode from "qrcode";
+import session from "express-session";
 
 import { prisma } from "./db/prisma.js";
+import { adminRouter } from "./admin/admin.routes.js";
 
 const app = express();
 const port = Number(process.env.PORT || 3000);
-const baseUrl = process.env.PUBLIC_BASE_URL || `http://localhost:${port}`;
+
+// Base URL pública (en prod pon PUBLIC_BASE_URL, en local usa host detectado)
+function getBaseUrl(req?: Request) {
+  if (process.env.PUBLIC_BASE_URL) return process.env.PUBLIC_BASE_URL;
+  if (req) return `${req.protocol}://${req.get("host")}`;
+  return `http://localhost:${port}`;
+}
 
 app.get("/health", (_req, res) => res.json({ ok: true }));
+
+// Views (EJS) - ruta robusta para Windows
+app.set("view engine", "ejs");
+app.set("views", path.join(process.cwd(), "src", "views"));
+
+// Forms + Session (para admin)
+app.use(express.urlencoded({ extended: true }));
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET ?? "dev-secret",
+    resave: false,
+    saveUninitialized: false,
+  })
+);
+
+// Router admin
+app.use("/admin", adminRouter);
 
 /**
  * Validación por token (pantalla para el local que escanea)
@@ -16,6 +43,7 @@ app.get("/health", (_req, res) => res.json({ ok: true }));
  */
 app.get("/s/:token", async (req: Request, res: Response) => {
   const token = String(req.params.token || "").trim();
+  const checkedAt = new Date();
 
   const member = await prisma.member.findUnique({ where: { token } });
 
@@ -28,13 +56,13 @@ app.get("/s/:token", async (req: Request, res: Response) => {
         fullName: "",
         rutMasked: "",
         affiliate: "",
-        checkedAt: new Date(),
+        checkedAt,
         token,
+        baseUrl: getBaseUrl(req),
       })
     );
   }
 
-  const checkedAt = new Date();
   const isActive = member.status === "ACTIVE";
 
   res.setHeader("Content-Type", "text/html; charset=utf-8");
@@ -47,6 +75,7 @@ app.get("/s/:token", async (req: Request, res: Response) => {
       affiliate: member.affiliate ?? "-",
       checkedAt,
       token: member.token,
+      baseUrl: getBaseUrl(req),
     })
   );
 });
@@ -62,6 +91,7 @@ app.get("/qr/:token.png", async (req: Request, res: Response) => {
   const member = await prisma.member.findUnique({ where: { token } });
   if (!member) return res.status(404).send("Token no encontrado");
 
+  const baseUrl = getBaseUrl(req);
   const validateUrl = `${baseUrl}/s/${encodeURIComponent(token)}`;
 
   const png = await QRCode.toBuffer(validateUrl, {
@@ -82,10 +112,10 @@ app.get("/qr/:token.png", async (req: Request, res: Response) => {
  */
 app.get("/credencial/:token", async (req: Request, res: Response) => {
   const token = String(req.params.token || "").trim();
-
   const member = await prisma.member.findUnique({ where: { token } });
   if (!member) return res.status(404).send("No encontrado");
 
+  const baseUrl = getBaseUrl(req);
   const validateUrl = `${baseUrl}/s/${encodeURIComponent(token)}`;
   const qrPngUrl = `${baseUrl}/qr/${encodeURIComponent(token)}.png`;
 
@@ -98,10 +128,8 @@ app.get("/credencial/:token", async (req: Request, res: Response) => {
   <title>Credencial FENATS</title>
   <style>
     :root{
-      --bg:#0b1220;
-      --card:#ffffff;
-      --muted:#4b5563;
       --border:#e5e7eb;
+      --muted:#4b5563;
       --btn:#111827;
       --btnText:#ffffff;
     }
@@ -118,7 +146,7 @@ app.get("/credencial/:token", async (req: Request, res: Response) => {
     }
     .card{
       width:min(720px,100%);
-      background:var(--card);
+      background:#fff;
       border:1px solid var(--border);
       border-radius:18px;
       padding:18px;
@@ -163,22 +191,9 @@ app.get("/credencial/:token", async (req: Request, res: Response) => {
       text-decoration:none;
       font-size:16px;
     }
-    .primary{
-      background:var(--btn);
-      color:var(--btnText);
-    }
-    .ghost{
-      background:#f3f4f6;
-      color:#111827;
-    }
-    .hint{
-      margin-top:10px;
-      color:#6b7280;
-      font-size:12px;
-      line-height:1.4;
-    }
-
-    /* Modo impresión */
+    .primary{ background:var(--btn); color:var(--btnText); }
+    .ghost{ background:#f3f4f6; color:#111827; }
+    .hint{ margin-top:10px; color:#6b7280; font-size:12px; line-height:1.4; }
     @media print{
       body{background:#fff; padding:0;}
       .card{box-shadow:none; border:1px solid #ddd; border-radius:12px;}
@@ -224,7 +239,9 @@ type RenderStatus = "ACTIVE" | "INACTIVE" | "INVALID";
 
 function formatCLDateTime(d: Date) {
   const pad = (n: number) => String(n).padStart(2, "0");
-  return `${pad(d.getDate())}-${pad(d.getMonth() + 1)}-${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  return `${pad(d.getDate())}-${pad(d.getMonth() + 1)}-${d.getFullYear()} ${pad(d.getHours())}:${pad(
+    d.getMinutes()
+  )}`;
 }
 
 function escapeHtml(s: string) {
@@ -244,8 +261,9 @@ function renderPage(input: {
   affiliate: string;
   checkedAt: Date;
   token: string;
+  baseUrl: string;
 }) {
-  const { title, status, fullName, rutMasked, affiliate, checkedAt, token } = input;
+  const { title, status, fullName, rutMasked, affiliate, checkedAt, token, baseUrl } = input;
 
   const statusMeta =
     status === "ACTIVE"
@@ -272,164 +290,67 @@ function renderPage(input: {
   <title>FENATS · Validación</title>
   <style>
     :root{
-      --bg: #0b1220;
-      --card: rgba(255,255,255,.08);
-      --border: rgba(255,255,255,.12);
-      --text: rgba(255,255,255,.92);
-      --muted: rgba(255,255,255,.70);
-      --shadow: 0 20px 60px rgba(0,0,0,.35);
-
-      --ok: #22c55e;
-      --warn: #f59e0b;
-      --bad: #ef4444;
-
-      --btn: rgba(255,255,255,.10);
-      --btnBorder: rgba(255,255,255,.16);
+      --bg:#0b1220;
+      --card:rgba(255,255,255,.08);
+      --border:rgba(255,255,255,.12);
+      --text:rgba(255,255,255,.92);
+      --muted:rgba(255,255,255,.70);
+      --shadow:0 20px 60px rgba(0,0,0,.35);
+      --ok:#22c55e; --warn:#f59e0b; --bad:#ef4444;
+      --btn:rgba(255,255,255,.10); --btnBorder:rgba(255,255,255,.16);
     }
     *{box-sizing:border-box}
     body{
-      margin:0;
-      min-height:100vh;
-      color:var(--text);
-      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+      margin:0; min-height:100vh; color:var(--text);
+      font-family: ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;
       background:
         radial-gradient(800px 500px at 20% 10%, rgba(34,197,94,.18), transparent 60%),
         radial-gradient(900px 600px at 90% 30%, rgba(59,130,246,.20), transparent 60%),
         radial-gradient(700px 500px at 40% 90%, rgba(245,158,11,.16), transparent 60%),
         var(--bg);
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      padding: 24px;
+      display:flex; align-items:center; justify-content:center; padding:24px;
     }
-    .wrap{ width: min(820px, 100%); }
-    .top{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:12px;
-      margin-bottom:14px;
-    }
-    .brand{
-      display:flex;
-      align-items:center;
-      gap:10px;
-      font-weight:700;
-      letter-spacing:.2px;
-    }
-    .dot{
-      width:12px;height:12px;border-radius:999px;
-      background: ${toneColor};
-      box-shadow: 0 0 0 6px rgba(255,255,255,.06);
-    }
-    .meta{
-      color:var(--muted);
-      font-size: 13px;
-      text-align:right;
-      line-height:1.2;
-    }
-    .card{
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 18px;
-      box-shadow: var(--shadow);
-      overflow:hidden;
-    }
-    .hero{
-      padding: 22px 22px 16px;
-      border-bottom: 1px solid var(--border);
-      display:flex;
-      align-items:flex-start;
-      justify-content:space-between;
-      gap: 14px;
-    }
-    .hgroup h1{ margin:0; font-size: 26px; letter-spacing:.2px; }
-    .hgroup p{ margin:6px 0 0; color:var(--muted); font-size: 14px; }
-    .badge{
-      display:inline-flex;
-      align-items:center;
-      gap:8px;
-      padding: 10px 12px;
-      border-radius: 999px;
-      font-weight: 800;
-      letter-spacing: .6px;
-      font-size: 12px;
-      border: 1px solid rgba(255,255,255,.16);
-      background: rgba(255,255,255,.06);
-      white-space:nowrap;
-    }
-    .pill{
-      width:8px;height:8px;border-radius:999px;
-      background: ${toneColor};
-      box-shadow: 0 0 0 4px rgba(255,255,255,.06);
-    }
-    .grid{
-      display:grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-      padding: 18px 22px 10px;
-    }
-    .field{
-      background: rgba(255,255,255,.05);
-      border: 1px solid rgba(255,255,255,.10);
-      border-radius: 14px;
-      padding: 12px 12px;
-    }
-    .label{ font-size: 12px; color: var(--muted); margin-bottom: 6px; }
-    .value{ font-size: 16px; font-weight: 650; word-break: break-word; }
-    .hr{ height:1px; background: rgba(255,255,255,.10); margin: 10px 22px 0; }
-
-    .actions{
-      padding: 14px 22px 18px;
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-      align-items:center;
-      justify-content:space-between;
-    }
-    .btns{ display:flex; gap:10px; flex-wrap:wrap; }
+    .wrap{width:min(820px,100%)}
+    .top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}
+    .brand{display:flex;align-items:center;gap:10px;font-weight:700;letter-spacing:.2px}
+    .dot{width:12px;height:12px;border-radius:999px;background:${toneColor};box-shadow:0 0 0 6px rgba(255,255,255,.06)}
+    .meta{color:var(--muted);font-size:13px;text-align:right;line-height:1.2}
+    .card{background:var(--card);border:1px solid var(--border);border-radius:18px;box-shadow:var(--shadow);overflow:hidden}
+    .hero{padding:22px 22px 16px;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;justify-content:space-between;gap:14px}
+    .hgroup h1{margin:0;font-size:26px;letter-spacing:.2px}
+    .hgroup p{margin:6px 0 0;color:var(--muted);font-size:14px}
+    .badge{display:inline-flex;align-items:center;gap:8px;padding:10px 12px;border-radius:999px;font-weight:800;letter-spacing:.6px;font-size:12px;border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.06);white-space:nowrap}
+    .pill{width:8px;height:8px;border-radius:999px;background:${toneColor};box-shadow:0 0 0 4px rgba(255,255,255,.06)}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:18px 22px 10px}
+    .field{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.10);border-radius:14px;padding:12px}
+    .label{font-size:12px;color:var(--muted);margin-bottom:6px}
+    .value{font-size:16px;font-weight:650;word-break:break-word}
+    .hr{height:1px;background:rgba(255,255,255,.10);margin:10px 22px 0}
+    .actions{padding:14px 22px 18px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between}
+    .btns{display:flex;gap:10px;flex-wrap:wrap}
     .btn{
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      gap:10px;
-      padding: 12px 14px;
-      border-radius: 14px;
-      border: 1px solid var(--btnBorder);
-      background: var(--btn);
-      color: var(--text);
-      text-decoration:none;
-      font-weight: 900;
-      cursor:pointer;
-      font-size: 15px;
+      display:inline-flex;align-items:center;justify-content:center;
+      padding:12px 14px;border-radius:14px;border:1px solid var(--btnBorder);
+      background:var(--btn);color:var(--text);text-decoration:none;font-weight:900;cursor:pointer;font-size:15px;
     }
-    .btnPrimary{
-      border-color: rgba(255,255,255,.22);
-      background: rgba(255,255,255,.14);
-    }
-    .foot{
-      padding: 0 22px 18px;
-      color: var(--muted);
-      font-size: 12px;
-      line-height: 1.45;
-    }
+    .btnPrimary{border-color:rgba(255,255,255,.22);background:rgba(255,255,255,.14)}
+    .foot{padding:0 22px 18px;color:var(--muted);font-size:12px;line-height:1.45}
 
     @media (max-width: 680px){
-      .hero{flex-direction:column; align-items:flex-start;}
+      .hero{flex-direction:column;align-items:flex-start}
       .meta{text-align:left}
-      .grid{grid-template-columns: 1fr;}
-      .actions{flex-direction:column; align-items:stretch;}
+      .grid{grid-template-columns:1fr}
+      .actions{flex-direction:column;align-items:stretch}
       .btns{width:100%}
       .btn{width:100%}
     }
 
-    /* Impresión: ocultar botones y fondos */
     @media print{
-      body{background:#fff; color:#111; padding:0}
+      body{background:#fff;color:#111;padding:0}
       .top{display:none}
-      .card{box-shadow:none; border:1px solid #ddd; background:#fff}
+      .card{box-shadow:none;border:1px solid #ddd;background:#fff}
       .actions,.foot{display:none}
-      .field{border:1px solid #eee; background:#fff}
+      .field{border:1px solid #eee;background:#fff}
       .label{color:#555}
       .value{color:#111}
       .hgroup p{color:#555}
@@ -439,10 +360,7 @@ function renderPage(input: {
 <body>
   <div class="wrap">
     <div class="top">
-      <div class="brand">
-        <span class="dot"></span>
-        <span>FENATS · Validación de Socio</span>
-      </div>
+      <div class="brand"><span class="dot"></span><span>FENATS · Validación de Socio</span></div>
       <div class="meta">
         <div><b>Validado:</b> ${escapeHtml(formatCLDateTime(checkedAt))}</div>
         <div>Uso: verificación de convenios</div>
@@ -455,29 +373,16 @@ function renderPage(input: {
           <h1>${safeTitle}</h1>
           <p>${escapeHtml(statusMeta.subtitle)}</p>
         </div>
-        <div class="badge">
-          <span class="pill"></span>
-          <span>${escapeHtml(statusMeta.badge)}</span>
-        </div>
+        <div class="badge"><span class="pill"></span><span>${escapeHtml(statusMeta.badge)}</span></div>
       </div>
 
       <div class="grid">
-        <div class="field">
-          <div class="label">Nombre</div>
-          <div class="value">${safeName}</div>
-        </div>
-        <div class="field">
-          <div class="label">RUT</div>
-          <div class="value">${safeRut}</div>
-        </div>
-        <div class="field">
-          <div class="label">Filial</div>
-          <div class="value">${safeAffiliate}</div>
-        </div>
-        <div class="field">
-          <div class="label">Estado</div>
-          <div class="value">${escapeHtml(status === "ACTIVE" ? "Activo" : status === "INACTIVE" ? "Inactivo" : "No encontrado")}</div>
-        </div>
+        <div class="field"><div class="label">Nombre</div><div class="value">${safeName}</div></div>
+        <div class="field"><div class="label">RUT</div><div class="value">${safeRut}</div></div>
+        <div class="field"><div class="label">Filial</div><div class="value">${safeAffiliate}</div></div>
+        <div class="field"><div class="label">Estado</div><div class="value">${escapeHtml(
+          status === "ACTIVE" ? "Activo" : status === "INACTIVE" ? "Inactivo" : "No encontrado"
+        )}</div></div>
       </div>
 
       <div class="hr"></div>
@@ -487,9 +392,7 @@ function renderPage(input: {
           <button class="btn btnPrimary" onclick="window.print()">Imprimir</button>
           <a class="btn" href="${escapeHtml(credencialUrl)}" target="_blank" rel="noreferrer">Ver credencial</a>
         </div>
-        <div style="color:var(--muted);font-size:12px">
-          Si hay inconsistencia, contacte a la directiva FENATS.
-        </div>
+        <div style="color:var(--muted);font-size:12px">Si hay inconsistencia, contacte a la directiva FENATS.</div>
       </div>
 
       <div class="foot">
@@ -501,4 +404,5 @@ function renderPage(input: {
 </body>
 </html>`;
 }
+
 
