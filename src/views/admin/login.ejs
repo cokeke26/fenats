@@ -120,10 +120,31 @@
         <h1>Ingreso de administración</h1>
         <p>Acceso restringido para gestión de socios, importación de planillas y tokens QR.</p>
       </div>
+
       <div class="body">
-        <form method="post" action="/admin/login">
-          <input class="input" type="password" name="password" placeholder="Clave de administración" required />
+        <!-- Ahora el login es por usuario + contraseña (AdminUser en BD) -->
+        <form method="post" action="/admin/login" autocomplete="on">
+          <input
+            class="input"
+            type="text"
+            name="username"
+            placeholder="Usuario"
+            value="<%= typeof username !== 'undefined' ? username : '' %>"
+            autocomplete="username"
+            required
+          />
           <div style="height:12px"></div>
+
+          <input
+            class="input"
+            type="password"
+            name="password"
+            placeholder="Contraseña"
+            autocomplete="current-password"
+            required
+          />
+          <div style="height:12px"></div>
+
           <button class="btn btnPrimary" type="submit">Ingresar</button>
 
           <% if (error) { %>
@@ -132,11 +153,18 @@
         </form>
 
         <div class="foot">
-
+          Si olvidaste tu acceso, solicita a tu jefatura que te restablezca la contraseña.
         </div>
       </div>
     </div>
   </div>
+
+  <script>
+    // Enfoca el primer campo (mejora UX sin cambiar diseño)
+    const u = document.querySelector('input[name="username"]');
+    if (u && !u.value) u.focus();
+  </script>
 </body>
 </html>
+
 

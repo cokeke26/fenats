@@ -1,0 +1,310 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>FENATS · Admin · Crear usuario</title>
+  <style>
+    :root{
+      --bg:#0b1220;
+      --card:rgba(255,255,255,.08);
+      --border:rgba(255,255,255,.12);
+      --text:rgba(255,255,255,.92);
+      --muted:rgba(255,255,255,.70);
+      --shadow:0 20px 60px rgba(0,0,0,.35);
+
+      --ok:#22c55e;
+      --warn:#f59e0b;
+      --bad:#ef4444;
+      --blue:#3b82f6;
+
+      --btn: rgba(255,255,255,.10);
+      --btnBorder: rgba(255,255,255,.16);
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      min-height:100vh;
+      color:var(--text);
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+      background:
+        radial-gradient(800px 500px at 20% 10%, rgba(34,197,94,.18), transparent 60%),
+        radial-gradient(900px 600px at 90% 30%, rgba(59,130,246,.20), transparent 60%),
+        radial-gradient(700px 500px at 40% 90%, rgba(245,158,11,.16), transparent 60%),
+        var(--bg);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding: 24px;
+    }
+    .wrap{width:min(640px,100%)}
+    .top{
+      display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;
+      margin-bottom:14px;
+    }
+    .brand{
+      display:flex; align-items:center; gap:10px;
+      font-weight:900; letter-spacing:.2px;
+    }
+    .dot{
+      width:12px;height:12px;border-radius:999px;
+      background: var(--blue);
+      box-shadow: 0 0 0 6px rgba(255,255,255,.06);
+    }
+    .nav{display:flex; gap:10px; flex-wrap:wrap}
+    .btn{
+      display:inline-flex; align-items:center; justify-content:center;
+      padding: 10px 12px;
+      border-radius: 14px;
+      border: 1px solid var(--btnBorder);
+      background: var(--btn);
+      color: var(--text);
+      text-decoration:none;
+      font-weight: 900;
+      cursor:pointer;
+      font-size: 14px;
+    }
+    .btnPrimary{
+      border-color: rgba(255,255,255,.22);
+      background: rgba(255,255,255,.14);
+    }
+
+    .card{
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+    .head{
+      padding: 20px 22px 14px;
+      border-bottom: 1px solid var(--border);
+    }
+    h1{margin:0;font-size:20px}
+    p{margin:6px 0 0;color:var(--muted);font-size:13px;line-height:1.35}
+    .body{padding: 18px 22px 20px}
+    .grid{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    @media (max-width: 620px){
+      .grid{grid-template-columns: 1fr;}
+    }
+    .label{
+      display:block;
+      font-size: 12px;
+      color: var(--muted);
+      margin: 0 0 6px 2px;
+      font-weight: 900;
+      letter-spacing: .2px;
+    }
+
+    /* Inputs base */
+    .input{
+      width:100%;
+      border-radius:14px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.06);
+      padding: 12px 12px;
+      color: var(--text);
+      outline: none;
+      font-size: 14px;
+    }
+    .input::placeholder{color: rgba(255,255,255,.55)}
+
+    /* ✅ Fix para SELECT en Windows/Chrome: tema + opciones */
+    select.input{
+      appearance:none;
+      -webkit-appearance:none;
+      -moz-appearance:none;
+
+      background-color: rgba(255,255,255,.06);
+      color: var(--text);
+
+      /* fuerza modo oscuro en control nativo */
+      color-scheme: dark;
+
+      /* deja espacio para la flecha */
+      padding-right: 40px;
+      cursor: pointer;
+    }
+    select.input option{
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    /* Flecha del select (sin tocar HTML) */
+    .selectWrap{ position:relative; }
+    .selectWrap::after{
+      content:"▾";
+      position:absolute;
+      right:14px;
+      top:50%;
+      transform:translateY(-50%);
+      color: rgba(255,255,255,.70);
+      pointer-events:none;
+      font-size: 14px;
+    }
+
+    .row{display:flex; gap:10px; flex-wrap:wrap}
+    .actions{
+      margin-top: 12px;
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+    .actions .btn{
+      flex: 1;
+      min-width: 160px;
+      padding: 12px 14px;
+      font-size: 14px;
+    }
+    .alert{
+      margin-top:12px;
+      border: 1px solid rgba(239,68,68,.35);
+      background: rgba(239,68,68,.10);
+      padding: 10px 12px;
+      border-radius: 14px;
+      color: rgba(255,255,255,.92);
+      font-size: 13px;
+    }
+    .okbox{
+      margin-top:12px;
+      border: 1px solid rgba(34,197,94,.35);
+      background: rgba(34,197,94,.10);
+      padding: 10px 12px;
+      border-radius: 14px;
+      color: rgba(255,255,255,.92);
+      font-size: 13px;
+    }
+    .hint{
+      margin-top:12px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.4;
+    }
+    code{color: rgba(255,255,255,.88)}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="top">
+      <div class="brand">
+        <span class="dot"></span>
+        <span>FENATS · Usuarios</span>
+      </div>
+
+      <div class="nav">
+        <a class="btn" href="/admin">Panel</a>
+        <a class="btn" href="/admin/members">Socios</a>
+        <a class="btn" href="/admin/logout">Salir</a>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="head">
+        <h1>Crear usuario administrador</h1>
+        <p>Solo SUPERADMIN puede crear usuarios. Las contraseñas se guardan hasheadas (bcrypt).</p>
+      </div>
+
+      <div class="body">
+        <form method="post" action="/admin/users/new">
+          <div class="grid">
+            <div>
+              <label class="label" for="username">Usuario</label>
+              <input
+                id="username"
+                class="input"
+                type="text"
+                name="username"
+                placeholder="Ej: jorge"
+                value="<%= values?.username ?? '' %>"
+                required
+                minlength="3"
+              />
+            </div>
+
+            <div>
+              <label class="label" for="role">Rol</label>
+
+              <!-- ✅ wrap para la flecha -->
+              <div class="selectWrap">
+                <select id="role" class="input" name="role" required>
+                  <% const currentRole = (values?.role ?? 'VIEWER').toUpperCase(); %>
+                  <option value="VIEWER" <%= currentRole === 'VIEWER' ? 'selected' : '' %>>VIEWER (solo lectura)</option>
+                  <option value="ADMIN"  <%= currentRole === 'ADMIN' ? 'selected' : '' %>>ADMIN (gestión completa)</option>
+                  <option value="SUPERADMIN" <%= currentRole === 'SUPERADMIN' ? 'selected' : '' %>>SUPERADMIN (crea usuarios)</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div style="height:12px"></div>
+
+          <div class="grid">
+            <div>
+              <label class="label" for="password">Contraseña</label>
+              <input
+                id="password"
+                class="input"
+                type="password"
+                name="password"
+                placeholder="Mínimo 6 caracteres"
+                required
+                minlength="6"
+                autocomplete="new-password"
+              />
+            </div>
+
+            <div>
+              <label class="label" for="password2">Confirmar contraseña</label>
+              <input
+                id="password2"
+                class="input"
+                type="password"
+                name="password2"
+                placeholder="Repite la contraseña"
+                required
+                minlength="6"
+                autocomplete="new-password"
+              />
+            </div>
+          </div>
+
+          <div class="actions">
+            <button class="btn btnPrimary" type="submit">Crear usuario</button>
+            <a class="btn" href="/admin">Volver</a>
+          </div>
+
+          <% if (error) { %>
+            <div class="alert"><b>Error:</b> <%= error %></div>
+          <% } %>
+
+          <% if (message) { %>
+            <div class="okbox"><b>OK:</b> <%= message %></div>
+          <% } %>
+        </form>
+
+        <div class="hint">
+          Recomendación: no uses contraseñas obvias. Si es un sistema real, activa HTTPS y cookies seguras.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Validación simple cliente (no reemplaza backend)
+    const form = document.querySelector("form");
+    form.addEventListener("submit", (e) => {
+      const p1 = document.getElementById("password").value;
+      const p2 = document.getElementById("password2").value;
+      if (p1 !== p2) {
+        e.preventDefault();
+        alert("Las contraseñas no coinciden.");
+      }
+    });
+  </script>
+</body>
+</html>
+

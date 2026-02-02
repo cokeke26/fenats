@@ -45,3 +45,19 @@ model Member {
   @@index([status])
   @@index([rut])
 }
+
+enum AdminRole {
+  SUPERADMIN
+  ADMIN
+  VIEWER
+}
+
+model AdminUser {
+  id           Int       @id @default(autoincrement())
+  username     String    @unique
+  passwordHash String
+  role         AdminRole @default(VIEWER)
+  isActive     Boolean   @default(true)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+}
