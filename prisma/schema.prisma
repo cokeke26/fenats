@@ -32,14 +32,14 @@ model Member {
   gender    Gender?
   status    MemberStatus @default(ACTIVE)
 
-  token     String       @unique
+  token String @unique
 
-  createdAt DateTime     @default(now())
+  createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
 
   // Auditoría de importación
   lastImportAt DateTime? // 
-  importSource String?   // (ej: "FENATS OCTAVA ARAUCO 12/2025")
+  importSource String? // (ej: "FENATS OCTAVA ARAUCO 12/2025")
 
   @@index([token])
   @@index([status])
@@ -58,6 +58,25 @@ model AdminUser {
   passwordHash String
   role         AdminRole @default(VIEWER)
   isActive     Boolean   @default(true)
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
+
+  phone String? @unique
+  email String?  @unique
+
+  otps AdminOtp[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model AdminOtp {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  codeHash  String
+  expiresAt DateTime
+  attempts  Int      @default(0)
+  createdAt DateTime @default(now())
+
+  user AdminUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
 }

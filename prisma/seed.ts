@@ -6,11 +6,12 @@ async function main() {
   const username = process.env.SUPERADMIN_USER ?? "admin";
   const password = process.env.SUPERADMIN_PASSWORD ?? "admin123";
   const passwordHash = await bcrypt.hash(password, 12);
+  const email = "admin@fenats.cl";
 
   await prisma.adminUser.upsert({
     where: { username },
-    update: { passwordHash, role: "SUPERADMIN", isActive: true },
-    create: { username, passwordHash, role: "SUPERADMIN", isActive: true },
+    update: { passwordHash, email, role: "SUPERADMIN", isActive: true },
+    create: { username, email, passwordHash, role: "SUPERADMIN", isActive: true },
   });
 
   console.log(`✅ Superadmin listo: ${username}`);

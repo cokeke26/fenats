@@ -35,9 +35,7 @@
       display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;
       margin-bottom:14px;
     }
-    .brand{
-      display:flex;align-items:center;gap:10px;font-weight:900;letter-spacing:.2px
-    }
+    .brand{display:flex;align-items:center;gap:10px;font-weight:900;letter-spacing:.2px}
     .dot{
       width:12px;height:12px;border-radius:999px;background:var(--blue);
       box-shadow:0 0 0 6px rgba(255,255,255,.06)
@@ -103,7 +101,7 @@
       .grid{grid-template-columns:1fr}
     }
 
-    /* Form */
+    /* Form panels */
     .panel{
       background: rgba(255,255,255,.05);
       border:1px solid rgba(255,255,255,.10);
@@ -112,21 +110,6 @@
     }
     .panelTitle{margin:0;font-size:14px;font-weight:950}
     .panelSub{margin:6px 0 0;color:var(--muted);font-size:12px;line-height:1.4}
-    .field{margin-top:12px}
-    .label{font-size:12px;color:var(--muted);margin-bottom:6px}
-    .input,select{
-      width:100%;
-      border-radius:14px;
-      border:1px solid rgba(255,255,255,.14);
-      background:rgba(255,255,255,.06);
-      padding:10px 12px;
-      color:var(--text);
-      outline:none;
-      font-size:14px;
-    }
-    select option{background:#0b1220}
-    .row{display:flex;gap:10px;flex-wrap:wrap}
-    .row .field{flex:1; min-width:160px}
     .actionsRow{margin-top:12px;display:flex;gap:10px;flex-wrap:wrap}
     .actionsRow .btn{flex:1}
 
@@ -138,6 +121,7 @@
       font-size:12px;
       font-weight:900;
       padding: 0 10px;
+      white-space: nowrap;
     }
     td{
       padding: 12px 10px;
@@ -169,10 +153,7 @@
     .bDot{width:8px;height:8px;border-radius:999px}
     .ok{background:var(--ok)}
     .warn{background:var(--warn)}
-    .role{
-      font-weight:950;
-      letter-spacing:.2px;
-    }
+    .role{font-weight:950;letter-spacing:.2px}
     .tblActions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
     .mini{
       padding:9px 10px;
@@ -189,17 +170,94 @@
     }
     .resetRow{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
     .resetRow .input{flex:1; min-width: 160px}
+
+    /* ✅ Mobile scroll: wrapper */
+    .tableScroll{
+      overflow-x:auto;
+      -webkit-overflow-scrolling: touch;
+      padding-bottom: 6px;
+    }
+    /* Haz que la tabla tenga un mínimo (para que en móvil se pueda desplazar) */
+    .tableMin{
+      min-width: 860px;
+    }
+
+    /* ✅ Modal */
+    .modalBack{
+      position:fixed;
+      inset:0;
+      background: rgba(0,0,0,.55);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding: 18px;
+      z-index: 50;
+    }
+    .modalBack.open{display:flex;}
+    .modal{
+      width: min(520px, 100%);
+      background: rgba(15,23,42,.92);
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+      overflow:hidden;
+      backdrop-filter: blur(10px);
+    }
+    .modalHead{
+      padding: 16px 16px 12px;
+      border-bottom: 1px solid rgba(255,255,255,.12);
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap: 10px;
+    }
+    .modalTitle{margin:0;font-size:16px;font-weight:950}
+    .modalSub{margin:6px 0 0;color:var(--muted);font-size:12px;line-height:1.4}
+    .modalBody{padding: 14px 16px 16px;}
+    .field{margin-top:12px}
+    .label{font-size:12px;color:var(--muted);margin-bottom:6px}
+    .input,select{
+      width:100%;
+      border-radius:14px;
+      border:1px solid rgba(255,255,255,.14);
+      background:rgba(255,255,255,.06);
+      padding:10px 12px;
+      color:var(--text);
+      outline:none;
+      font-size:14px;
+    }
+    select option{background:#0b1220}
+    .modalActions{
+      margin-top: 14px;
+      display:flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .modalActions .btn{flex:1; min-width: 160px;}
+    .xbtn{
+      border: 1px solid rgba(255,255,255,.16);
+      background: rgba(255,255,255,.08);
+      border-radius: 12px;
+      padding: 8px 10px;
+      cursor: pointer;
+      color: var(--text);
+      font-weight: 950;
+    }
   </style>
 </head>
 
 <body>
+  <% const isSuper = (role === "SUPERADMIN"); %>
+
   <div class="wrap">
     <div class="top">
       <div class="brand"><span class="dot"></span><span>FENATS · Usuarios Admin</span></div>
       <div class="nav">
         <a class="btn" href="/admin">Panel</a>
         <a class="btn" href="/admin/members">Socios</a>
-        <a class="btn btnPrimary" href="/admin/users/new">Nuevo usuario</a>
+        <% if (isSuper) { %>
+          <a class="btn btnPrimary" href="/admin/users/new">Nuevo usuario</a>
+        <% } %>
         <a class="btn" href="/admin/logout">Salir</a>
       </div>
     </div>
@@ -207,7 +265,7 @@
     <div class="card">
       <div class="head">
         <h1>Gestión de usuarios</h1>
-        <p>Solo <b>SUPERADMIN</b> puede crear, activar/inactivar y resetear contraseñas.</p>
+        <p>Solo <b>SUPERADMIN</b> puede crear, activar/inactivar, editar rol y resetear contraseñas.</p>
       </div>
 
       <div class="body">
@@ -224,11 +282,13 @@
           <div class="panel">
             <div class="panelTitle">Acciones rápidas</div>
             <div class="panelSub">
-              Crea usuarios desde “Nuevo usuario”. Aquí puedes administrar estado y resetear contraseña.
+              Crea usuarios desde “Nuevo usuario”. Aquí puedes administrar estado, editar rol/teléfono y resetear contraseña.
             </div>
 
             <div class="actionsRow">
-              <a class="btn btnPrimary" href="/admin/users/new">Crear usuario</a>
+              <% if (isSuper) { %>
+                <a class="btn btnPrimary" href="/admin/users/new">Crear usuario</a>
+              <% } %>
               <a class="btn" href="/admin/users">Refrescar</a>
             </div>
 
@@ -236,8 +296,8 @@
               <div class="panelTitle" style="margin-top:6px">Notas</div>
               <div class="panelSub">
                 • Un usuario <b>inactivo</b> no puede iniciar sesión.<br/>
-                • Roles sugeridos: <b>VIEWER</b> (solo lectura), <b>ADMIN</b> (gestión socios), <b>SUPERADMIN</b> (todo).<br/>
-                • Recomendación: usa contraseñas de 10+ caracteres.
+                • Roles: <b>VIEWER</b> (solo lectura), <b>ADMIN</b> (gestión socios), <b>SUPERADMIN</b> (todo).<br/>
+                • Teléfono: pensado para <b>2FA</b> (WhatsApp/SMS) a futuro.
               </div>
             </div>
           </div>
@@ -250,79 +310,116 @@
             </div>
 
             <div style="padding:10px 14px 14px;">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Usuario</th>
-                    <th>Rol</th>
-                    <th>Estado</th>
-                    <th>Fechas</th>
-                    <th style="text-align:right">Acciones</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <% users.forEach(u => { %>
+              <div class="tableScroll">
+                <table class="tableMin">
+                  <thead>
                     <tr>
-                      <td>
-                        <div style="font-weight:950"><%= u.username %></div>
-                        <div class="muted">ID: <%= u.id %></div>
-                      </td>
+                      <th>Usuario</th>
+                      <th>Rol</th>
+                      <th>Estado</th>
+                      <th>Correo</th>
+                      <th>Teléfono</th>
+                      <th>Fechas</th>
+                      <th style="text-align:right">Acciones</th>
+                    </tr>
+                  </thead>
 
-                      <td>
-                        <span class="badge">
-                          <span class="bDot" style="background: rgba(255,255,255,.55)"></span>
-                          <span class="role"><%= u.role %></span>
-                        </span>
-                      </td>
+                  <tbody>
+                    <% users.forEach(u => { %>
+                      <tr>
+                        <td>
+                          <div style="font-weight:950"><%= u.username %></div>
+                          <div class="muted">ID: <%= u.id %></div>
+                        </td>
 
-                      <td>
-                        <% if (u.isActive) { %>
-                          <span class="badge"><span class="bDot ok"></span>ACTIVO</span>
-                        <% } else { %>
-                          <span class="badge"><span class="bDot warn"></span>INACTIVO</span>
-                        <% } %>
-                      </td>
+                        <td>
+                          <span class="badge">
+                            <span class="bDot" style="background: rgba(255,255,255,.55)"></span>
+                            <span class="role"><%= u.role %></span>
+                          </span>
+                        </td>
 
-                      <td class="muted">
-                        <div>Creado: <%= new Date(u.createdAt).toLocaleString("es-CL") %></div>
-                        <div>Upd: <%= new Date(u.updatedAt).toLocaleString("es-CL") %></div>
-                      </td>
+                        <td>
+                          <% if (u.isActive) { %>
+                            <span class="badge"><span class="bDot ok"></span>ACTIVO</span>
+                          <% } else { %>
+                            <span class="badge"><span class="bDot warn"></span>INACTIVO</span>
+                          <% } %>
+                        </td>
 
-                      <td>
-                        <div class="tblActions">
-                          <!-- Toggle -->
-                          <form method="post" action="/admin/users/<%= u.id %>/toggle" style="display:inline">
-                            <% if (u.isActive) { %>
-                              <button class="btn mini btnDanger" type="submit">Inactivar</button>
+                        <td class="muted">
+                        <%= (u.email ?? "-") %>
+                        </td>
+
+                        <td class="muted">
+                          <%= (u.phone ?? "-") %>
+                        </td>
+
+                        <td class="muted">
+                          <div>Creado: <%= new Date(u.createdAt).toLocaleString("es-CL") %></div>
+                          <div>Upd: <%= new Date(u.updatedAt).toLocaleString("es-CL") %></div>
+                        </td>
+
+                        <td>
+                          <div class="tblActions">
+                            <% if (isSuper) { %>
+                              <!-- Editar (modal) -->
+                              <button
+                                class="btn mini"
+                                type="button"
+                                data-edit
+                                data-id="<%= u.id %>"
+                                data-username="<%= u.username %>"
+                                data-role="<%= u.role %>"
+                                data-phone="<%= u.phone ?? '' %>"
+                                data-email="<%= u.email ?? '' %>"
+                              >
+                                Editar
+                              </button>
+
+                              <!-- Toggle -->
+                              <form method="post" action="/admin/users/<%= u.id %>/toggle" style="display:inline">
+                                <% if (u.isActive) { %>
+                                  <button class="btn mini btnDanger" type="submit">Inactivar</button>
+                                <% } else { %>
+                                  <button class="btn mini btnOk" type="submit">Activar</button>
+                                <% } %>
+                              </form>
                             <% } else { %>
-                              <button class="btn mini btnOk" type="submit">Activar</button>
+                              <span class="muted">Sin acciones</span>
                             <% } %>
-                          </form>
-                        </div>
-
-                        <!-- Reset password -->
-                        <form method="post" action="/admin/users/<%= u.id %>/reset-password" class="resetWrap">
-                          <div class="resetRow">
-                            <input class="input" type="password" name="password" placeholder="Nueva contraseña" required />
-                            <button class="btn mini btnPrimary" type="submit">Reset</button>
                           </div>
-                          <div class="muted" style="margin-top:6px">
-                            Cambia la contraseña del usuario <b><%= u.username %></b>.
-                          </div>
-                        </form>
-                      </td>
-                    </tr>
-                  <% }) %>
 
-                  <% if (!users || users.length === 0) { %>
-                    <tr>
-                      <td colspan="5" style="text-align:center" class="muted">
-                        No hay usuarios registrados.
-                      </td>
-                    </tr>
-                  <% } %>
-                </tbody>
-              </table>
+                          <% if (isSuper) { %>
+                            <!-- Reset password -->
+                            <form method="post" action="/admin/users/<%= u.id %>/reset-password" class="resetWrap">
+                              <div class="resetRow">
+                                <input class="input" type="password" name="password" placeholder="Nueva contraseña" required />
+                                <button class="btn mini btnPrimary" type="submit">Reset</button>
+                              </div>
+                              <div class="muted" style="margin-top:6px">
+                                Cambia la contraseña del usuario <b><%= u.username %></b>.
+                              </div>
+                            </form>
+                          <% } %>
+                        </td>
+                      </tr>
+                    <% }) %>
+
+                    <% if (!users || users.length === 0) { %>
+                      <tr>
+                        <td colspan="7" style="text-align:center" class="muted">
+                          No hay usuarios registrados.
+                        </td>
+                      </tr>
+                    <% } %>
+                  </tbody>
+                </table>
+              </div>
+
+              <div class="muted" style="margin-top:8px">
+                En móvil: desliza horizontalmente para ver todas las columnas.
+              </div>
             </div>
           </div>
         </div>
@@ -330,5 +427,111 @@
       </div>
     </div>
   </div>
+
+  <!-- ✅ Modal editar usuario -->
+  <div id="modalBack" class="modalBack" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="mTitle">
+      <div class="modalHead">
+        <div>
+          <h2 id="mTitle" class="modalTitle">Editar usuario</h2>
+          <div class="modalSub" id="mSub">Cambia rol y teléfono para 2FA(a futuro).</div>
+        </div>
+        <button class="xbtn" type="button" id="closeModal">✕</button>
+      </div>
+
+      <div class="modalBody">
+        <form id="editForm" method="post" action="">
+          <div class="field">
+            <div class="label">Usuario</div>
+            <input class="input" id="mUsername" type="text" value="" disabled />
+          </div>
+
+          <div class="field">
+          <div class="label">Correo</div>
+          <input class="input" id="mEmail" name="email" type="email" placeholder="usuario@dominio.cl" />
+          </div>
+
+          <div class="field">
+            <div class="label">Rol</div>
+            <select id="mRole" name="role" required>
+              <option value="VIEWER">VIEWER (solo lectura)</option>
+              <option value="ADMIN">ADMIN (gestión socios)</option>
+              <option value="SUPERADMIN">SUPERADMIN (todo)</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <div class="label">Teléfono (opcional)</div>
+            <input
+              class="input"
+              id="mPhone"
+              name="phone"
+              type="text"
+              placeholder="Ej: +56912345678"
+            />
+            <div class="muted" style="margin-top:6px">
+              Recomendado formato internacional: <b>+56...</b>
+            </div>
+          </div>
+
+          <div class="modalActions">
+            <button class="btn btnPrimary" type="submit">Guardar cambios</button>
+            <button class="btn" type="button" id="cancelModal">Cancelar</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script>
+  const modalBack = document.getElementById("modalBack");
+  const editForm = document.getElementById("editForm");
+  const mUsername = document.getElementById("mUsername");
+  const mRole = document.getElementById("mRole");
+  const mPhone = document.getElementById("mPhone");
+  const mEmail = document.getElementById("mEmail"); 
+
+  const closeBtn = document.getElementById("closeModal");
+  const cancelBtn = document.getElementById("cancelModal");
+
+  function openModal() {
+    modalBack.classList.add("open");
+    modalBack.setAttribute("aria-hidden", "false");
+  }
+  function closeModal() {
+    modalBack.classList.remove("open");
+    modalBack.setAttribute("aria-hidden", "true");
+  }
+
+  modalBack.addEventListener("click", (e) => {
+    if (e.target === modalBack) closeModal();
+  });
+  closeBtn.addEventListener("click", closeModal);
+  cancelBtn.addEventListener("click", closeModal);
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && modalBack.classList.contains("open")) closeModal();
+  });
+
+  document.querySelectorAll("[data-edit]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const id = btn.getAttribute("data-id");
+      const username = btn.getAttribute("data-username") || "";
+      const role = (btn.getAttribute("data-role") || "VIEWER").toUpperCase();
+      const phone = btn.getAttribute("data-phone") || "";
+      const email = btn.getAttribute("data-email") || ""; 
+
+      editForm.action = `/admin/users/${id}/update`;
+
+      mUsername.value = username;
+      mRole.value = role;
+      mPhone.value = phone;
+      mEmail.value = email; 
+
+      openModal();
+    });
+  });
+</script>
 </body>
 </html>
+

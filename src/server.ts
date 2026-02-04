@@ -38,6 +38,67 @@ app.use(
 app.use("/admin", adminRouter);
 
 /**
+ * Login socio (solo RUT -> redirige a credencial)
+ * GET /login-member
+ * POST /login-member
+ */
+app.get("/login-member", (req: Request, res: Response) => {
+  res.render("member/login-member", { error: null, rut: "" });
+});
+
+app.post("/login-member", async (req: Request, res: Response) => {
+  try {
+    const rutInput = String(req.body.rut ?? "").trim();
+
+    if (!rutInput) {
+      return res.status(400).render("member/login-member", {
+        error: "Debes ingresar tu RUT.",
+        rut: rutInput,
+      });
+    }
+
+    const rut = normalizeRutMember(rutInput);
+    if (!rut) {
+      return res.status(400).render("member/login-member", {
+        error: "RUT inválido. Debe incluir DV (ej: 9.313.137-1).",
+        rut: rutInput,
+      });
+    }
+
+    const member = await prisma.member.findUnique({ where: { rut } });
+
+    if (!member) {
+      return res.status(404).render("member/login-member", {
+        error: "No encontramos tu RUT en el sistema. Verifica el DV o contacta a tu filial.",
+        rut: rutInput,
+      });
+    }
+
+    // Redirige a la credencial existente (ya la tienes lista)
+    return res.redirect(`/credencial/${encodeURIComponent(member.token)}`);
+  } catch (e: any) {
+    return res.status(500).render("member/login-member", {
+      error: `Error interno: ${String(e?.message ?? e)}`,
+      rut: String(req.body.rut ?? ""),
+    });
+  }
+});
+
+/**
+ * Normaliza RUT a formato DB: "num-dv" (sin puntos, DV en mayúscula)
+ * Acepta input con puntos/guiones/espacios.
+ */
+function normalizeRutMember(raw: string) {
+  const s = String(raw ?? "").trim().toUpperCase();
+  const compact = s.replace(/[^0-9K]/g, "");
+  if (compact.length < 2) return "";
+  const dv = compact.slice(-1);
+  const num = compact.slice(0, -1).replace(/^0+/, "") || "0";
+  return `${num}-${dv}`;
+}
+
+
+/**
  * Validación por token (pantalla para el local que escanea)
  * GET /s/:token
  */

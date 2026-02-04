@@ -77,12 +77,19 @@
   </style>
 </head>
 <body>
+  <% const isSuper = role === "SUPERADMIN"; %>
+  <% const canManageMembers = role === "ADMIN" || role === "SUPERADMIN"; %>
   <div class="wrap">
     <div class="top">
       <div class="brand"><span class="dot"></span><span>FENATS · Panel Admin</span></div>
       <div class="nav">
+        <% if (isSuper) { %>
+        <a class="btn btnPrimary" href="/admin/users">Crear Usuario</a>
+        <% } %>
+        <% if (canManageMembers) { %>
         <a class="btn btnPrimary" href="/admin/new">Nuevo socio</a>
         <a class="btn btnPrimary" href="/admin/upload">Importar Excel</a>
+        <% } %>
         <a class="btn" href="/admin/members">Ver socios</a>
         <a class="btn" href="/admin/logout">Salir</a>
       </div>

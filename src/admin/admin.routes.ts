@@ -7,12 +7,14 @@ import { prisma } from "../db/prisma.js";
 import { parseFenatsExcel } from "./excel.parse.js";
 import { Prisma, AdminRole } from "@prisma/client";
 
+// ✅ 2FA mailer
+import { sendAdminOtpEmail } from "./mailer.js";
+
 const upload = multer({ storage: multer.memoryStorage() });
 export const adminRouter = express.Router();
 
 /**
  * TIPADO de session para evitar "as any"
- * (Solo funciona si ya tienes express-session configurado en server.ts)
  */
 declare module "express-session" {
   interface SessionData {
@@ -21,6 +23,13 @@ declare module "express-session" {
       username: string;
       role: AdminRole;
     };
+
+    pending2fa?: {
+      userId: number;
+      username: string;
+      createdAt: number;
+      lastResendAt?: number;
+    };
   }
 }
 
@@ -28,16 +37,11 @@ declare module "express-session" {
    AUTH HELPERS (sesión + roles)
    ========================================================= */
 
-/** Requiere sesión iniciada (cualquier rol) */
 function requireAuth(req: Request, res: Response, next: NextFunction) {
   if (req.session?.user) return next();
   return res.redirect("/admin/login");
 }
 
-/**
- * Requiere uno de estos roles.
- * Ej: requireRole([AdminRole.ADMIN, AdminRole.SUPERADMIN])
- */
 function requireRole(roles: AdminRole[]) {
   return (req: Request, res: Response, next: NextFunction) => {
     const u = req.session?.user;
@@ -48,14 +52,62 @@ function requireRole(roles: AdminRole[]) {
 }
 
 /* =========================================================
+   VALIDACIONES (username rut / password fuerte / email)
+   ========================================================= */
+
+function validateUsernameRut(username: string): string | null {
+  const u = String(username ?? "").trim();
+  if (!u) return "Falta usuario.";
+  if (!/^\d+$/.test(u)) return "El usuario debe ser SOLO numérico (RUT sin DV).";
+  if (u.length > 8) return "El usuario no puede superar 8 dígitos (RUT sin DV).";
+  if (u.length < 7) return "El usuario debe tener al menos 7 dígitos (RUT sin DV).";
+  return null;
+}
+
+function validateStrongPassword(pw: string): string | null {
+  const p = String(pw ?? "");
+  if (!p) return "Falta contraseña.";
+  if (p.length < 8) return "Password débil: mínimo 8 caracteres.";
+  if (!/[A-Z]/.test(p)) return "Password débil: debe incluir 1 letra MAYÚSCULA.";
+  if (!/[0-9]/.test(p)) return "Password débil: debe incluir 1 número.";
+  if (!/[^a-zA-Z0-9]/.test(p)) return "Password débil: debe incluir 1 símbolo (ej: !@#$%).";
+  return null;
+}
+
+function normalizeEmail(raw: string) {
+  return String(raw ?? "").trim().toLowerCase();
+}
+
+function isValidEmail(email: string) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i.test(email);
+}
+
+/* =========================================================
+   2FA (OTP por correo)
+   ========================================================= */
+
+function generateOtpCode() {
+  return String(Math.floor(100000 + Math.random() * 900000)); // 6 dígitos
+}
+
+async function createAndSendOtp(userId: number, email: string) {
+  await prisma.adminOtp.deleteMany({ where: { userId } });
+
+  const code = generateOtpCode();
+  const codeHash = await bcrypt.hash(code, 10);
+  const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
+
+  await prisma.adminOtp.create({
+    data: { userId, codeHash, expiresAt },
+  });
+
+  await sendAdminOtpEmail(email, code);
+}
+
+/* =========================================================
    UTILIDADES (RUT / gender / token)
    ========================================================= */
 
-/**
- * Limpia y normaliza un RUT al formato: 9313137-1
- * - Acepta con puntos, sin puntos, con/sin guion, con espacios.
- * - DV siempre en mayúscula.
- */
 function normalizeRut(raw: string) {
   const s = String(raw ?? "").trim().toUpperCase();
   const compact = s.replace(/[^0-9K]/g, "");
@@ -66,7 +118,6 @@ function normalizeRut(raw: string) {
   return `${num}-${dv}`;
 }
 
-/** Formatea un RUT normalizado (9313137-1) a 9.313.137-1 */
 function formatRut(rutNormalized: string) {
   const clean = normalizeRut(rutNormalized);
   const [num, dv] = clean.split("-");
@@ -84,26 +135,18 @@ function genderMap(g: string | null) {
 }
 
 function newToken() {
-  return crypto.randomBytes(16).toString("hex"); // 32 chars
+  return crypto.randomBytes(16).toString("hex");
 }
 
 /* =========================================================
-   LOGIN / LOGOUT (DB + bcrypt)
+   LOGIN / LOGOUT (DB + bcrypt) + 2FA por correo
    ========================================================= */
 
-/**
- * GET /admin/login
- * Muestra login. Si ya hay sesión, manda al panel.
- */
 adminRouter.get("/login", (req, res) => {
   if (req.session?.user) return res.redirect("/admin");
   res.render("admin/login", { error: null });
 });
 
-/**
- * POST /admin/login
- * Valida contra AdminUser (DB) usando bcrypt.compare().
- */
 adminRouter.post("/login", express.urlencoded({ extended: true }), async (req, res) => {
   try {
     const username = String(req.body.username ?? "").trim();
@@ -115,7 +158,6 @@ adminRouter.post("/login", express.urlencoded({ extended: true }), async (req, r
 
     const user = await prisma.adminUser.findUnique({ where: { username } });
 
-    // Mensaje genérico por seguridad
     if (!user || !user.isActive) {
       return res.status(401).render("admin/login", { error: "Credenciales inválidas." });
     }
@@ -125,10 +167,24 @@ adminRouter.post("/login", express.urlencoded({ extended: true }), async (req, r
       return res.status(401).render("admin/login", { error: "Credenciales inválidas." });
     }
 
-    // Guardamos lo mínimo en sesión
-    req.session.user = { id: user.id, username: user.username, role: user.role };
+    // ✅ 2FA: requiere email
+    if (!user.email) {
+      return res
+        .status(400)
+        .render("admin/login", { error: "Tu usuario no tiene correo configurado. Contacta al SUPERADMIN." });
+    }
 
-    return res.redirect("/admin");
+    req.session.user = undefined;
+    req.session.pending2fa = {
+      userId: user.id,
+      username: user.username,
+      createdAt: Date.now(),
+      lastResendAt: Date.now(),
+    };
+
+    await createAndSendOtp(user.id, user.email);
+
+    return res.redirect("/admin/otp");
   } catch (e: any) {
     return res.status(500).render("admin/login", {
       error: `Error interno al iniciar sesión: ${String(e?.message ?? e)}`,
@@ -136,12 +192,119 @@ adminRouter.post("/login", express.urlencoded({ extended: true }), async (req, r
   }
 });
 
-/**
- * GET /admin/logout
- * Cierra sesión.
- */
+// ✅ Vista OTP
+adminRouter.get("/otp", (req, res) => {
+  if (req.session?.user) return res.redirect("/admin");
+  if (!req.session?.pending2fa) return res.redirect("/admin/login");
+  res.render("admin/otp", { error: null, message: null });
+});
+
+// ✅ Verificar OTP
+adminRouter.post("/otp", express.urlencoded({ extended: true }), async (req, res) => {
+  try {
+    const pending = req.session.pending2fa;
+    if (!pending) return res.redirect("/admin/login");
+
+    const code = String(req.body.code ?? "").trim();
+    if (!/^\d{6}$/.test(code)) {
+      return res.status(400).render("admin/otp", {
+        error: "Código inválido. Debe ser de 6 dígitos.",
+        message: null,
+      });
+    }
+
+    const otp = await prisma.adminOtp.findFirst({
+      where: { userId: pending.userId },
+      orderBy: { createdAt: "desc" },
+    });
+
+    if (!otp) {
+      return res.status(400).render("admin/otp", {
+        error: "No hay un código activo. Reintenta el login.",
+        message: null,
+      });
+    }
+
+    if (otp.expiresAt.getTime() < Date.now()) {
+      return res.status(400).render("admin/otp", {
+        error: "Código expirado. Reintenta el login.",
+        message: null,
+      });
+    }
+
+    const attempts = Number(otp.attempts ?? 0);
+    if (attempts >= 5) {
+      return res.status(429).render("admin/otp", {
+        error: "Demasiados intentos. Reintenta el login.",
+        message: null,
+      });
+    }
+
+    const ok = await bcrypt.compare(code, otp.codeHash);
+
+    await prisma.adminOtp.update({
+      where: { id: otp.id },
+      data: { attempts: { increment: 1 } },
+    });
+
+    if (!ok) {
+      return res.status(400).render("admin/otp", { error: "Código incorrecto.", message: null });
+    }
+
+    // ✅ OTP correcto: crear sesión final
+    const user = await prisma.adminUser.findUnique({ where: { id: pending.userId } });
+    if (!user || !user.isActive) return res.redirect("/admin/login");
+
+    req.session.user = { id: user.id, username: user.username, role: user.role };
+    req.session.pending2fa = undefined;
+
+    await prisma.adminOtp.deleteMany({ where: { userId: user.id } });
+
+    return res.redirect("/admin");
+  } catch (e: any) {
+    return res.status(500).render("admin/otp", {
+      error: `Error verificando código: ${String(e?.message ?? e)}`,
+      message: null,
+    });
+  }
+});
+
+// ✅ Reenviar OTP
+adminRouter.post("/otp/resend", express.urlencoded({ extended: true }), async (req, res) => {
+  try {
+    const pending = req.session.pending2fa;
+    if (!pending) return res.redirect("/admin/login");
+
+    const now = Date.now();
+    const last = pending.lastResendAt ?? 0;
+    if (now - last < 45_000) {
+      return res.status(429).render("admin/otp", {
+        error: "Espera unos segundos antes de reenviar el código.",
+        message: null,
+      });
+    }
+
+    const user = await prisma.adminUser.findUnique({ where: { id: pending.userId } });
+    if (!user?.email) return res.redirect("/admin/login");
+
+    pending.lastResendAt = now;
+
+    await createAndSendOtp(user.id, user.email);
+
+    return res.render("admin/otp", { error: null, message: "Código reenviado al correo ✅" });
+  } catch (e: any) {
+    return res.status(500).render("admin/otp", {
+      error: `No se pudo reenviar: ${String(e?.message ?? e)}`,
+      message: null,
+    });
+  }
+});
+
 adminRouter.get("/logout", (req, res) => {
-  if (req.session) req.session.user = undefined;
+  if (req.session) {
+    req.session.user = undefined;
+    req.session.pending2fa = undefined;
+  }
   res.redirect("/admin/login");
 });
 
@@ -149,51 +312,51 @@ adminRouter.get("/logout", (req, res) => {
    PANEL / DASHBOARD
    ========================================================= */
 
-/**
- * GET /admin
- * Dashboard: lo ve cualquier logeado (VIEWER/ADMIN/SUPERADMIN)
- */
-adminRouter.get("/", requireAuth, async (_req, res) => {
+adminRouter.get("/", requireAuth, async (req, res) => {
   const total = await prisma.member.count();
   const active = await prisma.member.count({ where: { status: "ACTIVE" } });
   const inactive = await prisma.member.count({ where: { status: "INACTIVE" } });
 
-  res.render("admin/dashboard", { total, active, inactive });
+  res.render("admin/dashboard", {
+    total,
+    active,
+    inactive,
+    role: req.session.user?.role ?? "VIEWER",
+  });
 });
 
 /* =========================================================
    USUARIOS ADMIN (solo SUPERADMIN)
-   - Sin registro público: solo SUPERADMIN crea usuarios
    ========================================================= */
 
-/**
- * GET /admin/users
- * Lista usuarios (solo SUPERADMIN)
- * Puedes renderizar: views/admin/users.ejs (si ya lo tienes)
- */
-adminRouter.get("/users", requireRole([AdminRole.SUPERADMIN]), async (_req, res) => {
+adminRouter.get("/users", requireRole([AdminRole.SUPERADMIN]), async (req, res) => {
   const users = await prisma.adminUser.findMany({
     orderBy: { createdAt: "desc" },
-    select: { id: true, username: true, role: true, isActive: true, createdAt: true, updatedAt: true },
+    select: {
+      id: true,
+      username: true,
+      role: true,
+      isActive: true,
+      phone: true,
+      email: true,
+      createdAt: true,
+      updatedAt: true,
+    },
     take: 200,
   });
 
-  res.render("admin/users", { users, error: null, message: null });
+  res.render("admin/users", {
+    users,
+    error: null,
+    message: null,
+    role: req.session.user?.role ?? "VIEWER",
+  });
 });
 
-/**
- * GET /admin/users/new
- * Renderiza el formulario para crear usuario (tu new-user.ejs)
- */
 adminRouter.get("/users/new", requireRole([AdminRole.SUPERADMIN]), (_req, res) => {
   res.render("admin/new-user", { error: null, message: null, values: null });
 });
 
-/**
- * POST /admin/users/new
- * Crea un usuario nuevo desde el formulario new-user.ejs
- * Body: username, password, password2, role
- */
 adminRouter.post(
   "/users/new",
   requireRole([AdminRole.SUPERADMIN]),
@@ -204,29 +367,31 @@ adminRouter.post(
       const password = String(req.body.password ?? "");
       const password2 = String(req.body.password2 ?? "");
       const roleRaw = String(req.body.role ?? "VIEWER").trim().toUpperCase();
+      const email = normalizeEmail(req.body.email ?? "");
 
       const role: AdminRole =
         roleRaw === "SUPERADMIN"
           ? AdminRole.SUPERADMIN
           : roleRaw === "ADMIN"
-            ? AdminRole.ADMIN
-            : AdminRole.VIEWER;
+          ? AdminRole.ADMIN
+          : AdminRole.VIEWER;
 
-      // Validaciones
-      if (!username || !password) {
-        return res.status(400).render("admin/new-user", {
-          error: "Falta usuario o contraseña.",
-          message: null,
-          values: req.body,
-        });
+      if (!email) {
+        return res.status(400).render("admin/new-user", { error: "Falta el correo.", message: null, values: req.body });
       }
 
-      if (password.length < 6) {
-        return res.status(400).render("admin/new-user", {
-          error: "La contraseña debe tener al menos 6 caracteres.",
-          message: null,
-          values: req.body,
-        });
+      if (!isValidEmail(email)) {
+        return res.status(400).render("admin/new-user", { error: "Correo inválido.", message: null, values: req.body });
+      }
+
+      const userErr = validateUsernameRut(username);
+      if (userErr) {
+        return res.status(400).render("admin/new-user", { error: userErr, message: null, values: req.body });
+      }
+
+      const passErr = validateStrongPassword(password);
+      if (passErr) {
+        return res.status(400).render("admin/new-user", { error: passErr, message: null, values: req.body });
       }
 
       if (password !== password2) {
@@ -237,33 +402,20 @@ adminRouter.post(
         });
       }
 
-      // (Opcional) evita usernames raros
-      if (!/^[a-zA-Z0-9._-]{3,32}$/.test(username)) {
-        return res.status(400).render("admin/new-user", {
-          error: "Username inválido. Usa letras/números y . _ - (3 a 32).",
-          message: null,
-          values: req.body,
-        });
-      }
-
-      // Hash bcrypt
       const passwordHash = await bcrypt.hash(password, 12);
 
-      // Crear usuario (si el username ya existe, Prisma lanzará error)
       await prisma.adminUser.create({
-        data: { username, passwordHash, role, isActive: true },
+        data: { username, email, passwordHash, role, isActive: true },
       });
 
-      return res.render("admin/new-user", {
-        error: null,
-        message: `Usuario creado: ${username} (${role})`,
-        values: null,
-      });
+      return res.render("admin/new-user", { error: null, message: `Usuario creado: ${username} (${role})`, values: null });
     } catch (e: any) {
-      // Mensaje amigable si es unique constraint
       const msg = String(e?.message ?? e);
-      const friendly =
-        msg.includes("Unique constraint") || msg.includes("unique") ? "Ese username ya existe." : msg;
+      const lower = msg.toLowerCase();
+
+      let friendly = msg;
+      if (lower.includes("unique") && lower.includes("username")) friendly = "Ese usuario ya existe.";
+      if (lower.includes("unique") && lower.includes("email")) friendly = "Ese correo ya existe.";
 
       return res.status(400).render("admin/new-user", {
         error: `No se pudo crear: ${friendly}`,
@@ -274,17 +426,25 @@ adminRouter.post(
   }
 );
 
-/**
- * POST /admin/users/:id/toggle
- * Activa/Inactiva un usuario admin (solo SUPERADMIN)
- */
 adminRouter.post("/users/:id/toggle", requireRole([AdminRole.SUPERADMIN]), async (req, res) => {
   const id = Number(req.params.id);
   const user = await prisma.adminUser.findUnique({ where: { id } });
   if (!user) return res.status(404).send("No encontrado");
 
-  // (Opcional) evita que te desactives a ti mismo
-  if (req.session.user?.id === id) return res.status(400).send("No puedes desactivarte a ti mismo.");
+  if (req.session.user?.id === id) {
+    const users = await prisma.adminUser.findMany({
+      orderBy: { createdAt: "desc" },
+      select: { id: true, username: true, role: true, isActive: true, phone: true, email: true, createdAt: true, updatedAt: true },
+      take: 200,
+    });
+
+    return res.status(400).render("admin/users", {
+      users,
+      error: "No puedes desactivarte a ti mismo.",
+      message: null,
+      role: req.session.user?.role ?? "VIEWER",
+    });
+  }
 
   await prisma.adminUser.update({
     where: { id },
@@ -294,11 +454,6 @@ adminRouter.post("/users/:id/toggle", requireRole([AdminRole.SUPERADMIN]), async
   return res.redirect("/admin/users");
 });
 
-/**
- * POST /admin/users/:id/reset-password
- * Cambia password (solo SUPERADMIN)
- * Body: password
- */
 adminRouter.post(
   "/users/:id/reset-password",
   requireRole([AdminRole.SUPERADMIN]),
@@ -307,12 +462,108 @@ adminRouter.post(
     const id = Number(req.params.id);
     const password = String(req.body.password ?? "");
 
-    if (!password || password.length < 6) return res.status(400).send("Password inválida (min 6).");
+    const passErr = validateStrongPassword(password);
+    if (passErr) {
+      const users = await prisma.adminUser.findMany({
+        orderBy: { createdAt: "desc" },
+        select: { id: true, username: true, role: true, isActive: true, phone: true, email: true, createdAt: true, updatedAt: true },
+        take: 200,
+      });
+
+      return res.status(400).render("admin/users", {
+        users,
+        error: passErr,
+        message: null,
+        role: req.session.user?.role ?? "VIEWER",
+      });
+    }
 
     const passwordHash = await bcrypt.hash(password, 12);
     await prisma.adminUser.update({ where: { id }, data: { passwordHash } });
 
-    return res.redirect("/admin/users");
+    const users = await prisma.adminUser.findMany({
+      orderBy: { createdAt: "desc" },
+      select: { id: true, username: true, role: true, isActive: true, phone: true, email: true, createdAt: true, updatedAt: true },
+      take: 200,
+    });
+
+    return res.render("admin/users", {
+      users,
+      error: null,
+      message: "Contraseña reseteada correctamente ✅",
+      role: req.session.user?.role ?? "VIEWER",
+    });
+  }
+);
+
+adminRouter.post(
+  "/users/:id/update",
+  requireRole([AdminRole.SUPERADMIN]),
+  express.urlencoded({ extended: true }),
+  async (req, res) => {
+    const me = req.session.user;
+
+    async function renderUsers(error: string | null, message: string | null = null) {
+      const users = await prisma.adminUser.findMany({
+        orderBy: { createdAt: "desc" },
+        select: {
+          id: true,
+          username: true,
+          role: true,
+          isActive: true,
+          phone: true,
+          email: true,
+          createdAt: true,
+          updatedAt: true,
+        },
+        take: 200,
+      });
+
+      return res.status(error ? 400 : 200).render("admin/users", {
+        users,
+        error,
+        message,
+        role: me?.role ?? "VIEWER",
+      });
+    }
+
+    try {
+      const id = Number(req.params.id);
+      if (!Number.isFinite(id)) return renderUsers("ID inválido.");
+
+      const roleRaw = String(req.body.role ?? "VIEWER").trim().toUpperCase();
+      const role: AdminRole =
+        roleRaw === "SUPERADMIN"
+          ? AdminRole.SUPERADMIN
+          : roleRaw === "ADMIN"
+          ? AdminRole.ADMIN
+          : AdminRole.VIEWER;
+
+      const phoneRaw = String(req.body.phone ?? "").trim();
+      const emailRaw = String(req.body.email ?? "").trim();
+
+      const data: Prisma.AdminUserUpdateInput = { role };
+
+      if (phoneRaw.length) data.phone = phoneRaw;
+      if (emailRaw.length) {
+        const email = emailRaw.toLowerCase();
+        if (!isValidEmail(email)) return renderUsers("Correo inválido. Ej: usuario@dominio.cl");
+        data.email = email;
+      }
+
+      if (me?.id === id && me.role === AdminRole.SUPERADMIN && role !== AdminRole.SUPERADMIN) {
+        return renderUsers("No puedes cambiar tu propio rol de SUPERADMIN.");
+      }
+
+      await prisma.adminUser.update({ where: { id }, data });
+
+      return res.redirect("/admin/users");
+    } catch (e: any) {
+      const msg = String(e?.message ?? e).toLowerCase();
+      if (msg.includes("unique") && msg.includes("email")) return renderUsers("Ese correo ya está en uso.");
+      if (msg.includes("unique") && msg.includes("phone")) return renderUsers("Ese teléfono ya está en uso.");
+      return renderUsers(`No se pudo actualizar: ${String(e?.message ?? e)}`);
+    }
   }
 );
 
@@ -396,7 +647,7 @@ adminRouter.post(
 );
 
 /* =========================================================
-   CRUD SOCIOS (solo ADMIN/SUPERADMIN)
+   CRUD SOCIOS
    ========================================================= */
 
 adminRouter.get("/new", requireRole([AdminRole.ADMIN, AdminRole.SUPERADMIN]), (_req, res) => {
@@ -474,44 +725,52 @@ adminRouter.post(
   }
 );
 
-adminRouter.get("/members", requireRole([AdminRole.ADMIN, AdminRole.SUPERADMIN]), async (req, res) => {
-  const q = String(req.query.q ?? "").trim();
-  const qRut = q ? normalizeRut(q) : "";
+adminRouter.get(
+  "/members",
+  requireRole([AdminRole.VIEWER, AdminRole.ADMIN, AdminRole.SUPERADMIN]),
+  async (req, res) => {
+    const q = String(req.query.q ?? "").trim();
+    const qRut = q ? normalizeRut(q) : "";
 
-  const where: Prisma.MemberWhereInput = q
-    ? {
-        OR: [
-          ...(qRut ? [{ rut: { contains: qRut } }] : []),
-          { rutMasked: { contains: q } },
-          { fullName: { contains: q, mode: Prisma.QueryMode.insensitive } },
-          { token: { contains: q } },
-        ],
-      }
-    : {};
+    const where: Prisma.MemberWhereInput = q
+      ? {
+          OR: [
+            ...(qRut ? [{ rut: { contains: qRut } }] : []),
+            { rutMasked: { contains: q } },
+            { fullName: { contains: q, mode: Prisma.QueryMode.insensitive } },
+            { token: { contains: q } },
+          ],
+        }
+      : {};
 
-  const members = await prisma.member.findMany({
-    where,
-    orderBy: { updatedAt: "desc" },
-    take: 200,
-  });
+    const members = await prisma.member.findMany({
+      where,
+      orderBy: { updatedAt: "desc" },
+      take: 200,
+    });
 
-  res.render("admin/members", { q, members });
-});
+    res.render("admin/members", { q, members, role: req.session.user?.role ?? "VIEWER" });
+  }
+);
 
-adminRouter.post("/members/:id/toggle", requireRole([AdminRole.ADMIN, AdminRole.SUPERADMIN]), async (req, res) => {
-  const id = Number(req.params.id);
-  const member = await prisma.member.findUnique({ where: { id } });
-  if (!member) return res.status(404).send("No encontrado");
+adminRouter.post(
+  "/members/:id/toggle",
+  requireRole([AdminRole.ADMIN, AdminRole.SUPERADMIN]),
+  async (req, res) => {
+    const id = Number(req.params.id);
+    const member = await prisma.member.findUnique({ where: { id } });
+    if (!member) return res.status(404).send("No encontrado");
 
-  const newStatus = member.status === "ACTIVE" ? "INACTIVE" : "ACTIVE";
+    const newStatus = member.status === "ACTIVE" ? "INACTIVE" : "ACTIVE";
 
-  await prisma.member.update({
-    where: { id },
-    data: { status: newStatus },
-  });
+    await prisma.member.update({
+      where: { id },
+      data: { status: newStatus },
+    });
 
-  res.redirect("/admin/members");
-});
+    res.redirect("/admin/members");
+  }
+);
 
 adminRouter.post(
   "/members/:id/regen-token",
@@ -527,6 +786,13 @@ adminRouter.post(
     res.redirect("/admin/members");
   }
 );
+
+
+
+
+
+
+
 
 
 

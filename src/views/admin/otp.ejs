@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>FENATS · Verificación</title>
+  <style>
+    :root{
+      --bg:#0b1220;
+      --card:rgba(255,255,255,.08);
+      --border:rgba(255,255,255,.12);
+      --text:rgba(255,255,255,.92);
+      --muted:rgba(255,255,255,.70);
+      --shadow:0 20px 60px rgba(0,0,0,.35);
+
+      --ok:#22c55e;
+      --warn:#f59e0b;
+      --bad:#ef4444;
+      --blue:#3b82f6;
+
+      --btn: rgba(255,255,255,.10);
+      --btnBorder: rgba(255,255,255,.16);
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      min-height:100vh;
+      color:var(--text);
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+      background:
+        radial-gradient(800px 500px at 20% 10%, rgba(34,197,94,.18), transparent 60%),
+        radial-gradient(900px 600px at 90% 30%, rgba(59,130,246,.20), transparent 60%),
+        radial-gradient(700px 500px at 40% 90%, rgba(245,158,11,.16), transparent 60%),
+        var(--bg);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding: 24px;
+    }
+    .wrap{width:min(560px,100%)}
+    .brand{
+      display:flex; align-items:center; gap:10px;
+      font-weight:900; letter-spacing:.2px;
+      margin-bottom:14px;
+    }
+    .dot{
+      width:12px;height:12px;border-radius:999px;
+      background: var(--blue);
+      box-shadow: 0 0 0 6px rgba(255,255,255,.06);
+    }
+    .card{
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+    .head{
+      padding: 20px 22px 14px;
+      border-bottom: 1px solid var(--border);
+    }
+    h1{margin:0;font-size:22px}
+    p{margin:6px 0 0;color:var(--muted);font-size:14px;line-height:1.35}
+    .body{padding: 18px 22px 20px}
+
+    .input{
+      width:100%;
+      border-radius:14px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.06);
+      padding: 12px 12px;
+      color: var(--text);
+      outline: none;
+      font-size: 18px;
+      letter-spacing: 6px;
+      text-align: center;
+    }
+    .input::placeholder{color: rgba(255,255,255,.55); letter-spacing: 2px;}
+
+    .btn{
+      display:inline-flex; align-items:center; justify-content:center;
+      padding: 12px 14px;
+      border-radius: 14px;
+      border: 1px solid var(--btnBorder);
+      background: var(--btn);
+      color: var(--text);
+      text-decoration:none;
+      font-weight: 900;
+      cursor:pointer;
+      font-size: 15px;
+      width:100%;
+    }
+    .btnPrimary{
+      border-color: rgba(255,255,255,.22);
+      background: rgba(255,255,255,.14);
+    }
+    .btn:disabled{
+      opacity: .55;
+      cursor: not-allowed;
+    }
+
+    .alert{
+      margin-top:12px;
+      border: 1px solid rgba(239,68,68,.35);
+      background: rgba(239,68,68,.10);
+      padding: 10px 12px;
+      border-radius: 14px;
+      color: rgba(255,255,255,.92);
+      font-size: 13px;
+    }
+    .okbox{
+      margin-top:12px;
+      border: 1px solid rgba(34,197,94,.30);
+      background: rgba(34,197,94,.10);
+      padding: 10px 12px;
+      border-radius: 14px;
+      color: rgba(255,255,255,.92);
+      font-size: 13px;
+    }
+
+    .row{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-top: 10px;
+    }
+    .row .btn{flex:1; min-width: 180px;}
+
+    .foot{
+      margin-top:12px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.4;
+    }
+
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      margin-top: 10px;
+      padding: 8px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.06);
+      color: rgba(255,255,255,.78);
+      font-size: 12px;
+      font-weight: 900;
+      width: fit-content;
+    }
+    .pDot{width:8px;height:8px;border-radius:999px;background:rgba(245,158,11,.95)}
+    .pDot.ok{background:rgba(34,197,94,.95)}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="brand">
+      <span class="dot"></span>
+      <span>FENATS · Verificación</span>
+    </div>
+
+    <div class="card">
+      <div class="head">
+        <h1>Ingresa el código</h1>
+        <p>Te enviamos un código de 6 dígitos a tu correo. Tiene una duración limitada.</p>
+      </div>
+
+      <div class="body">
+        <form method="post" action="/admin/otp" autocomplete="off">
+          <input
+            id="code"
+            class="input"
+            name="code"
+            type="text"
+            inputmode="numeric"
+            pattern="\d{6}"
+            maxlength="6"
+            placeholder="● ● ● ● ● ●"
+            required
+          />
+
+          <div class="pill" id="pill">
+            <span class="pDot" id="pDot"></span>
+            <span id="pillText">Listo para verificar</span>
+          </div>
+
+          <div style="height:12px"></div>
+
+          <button class="btn btnPrimary" type="submit">Verificar</button>
+
+          <% if (error) { %>
+            <div class="alert"><b>Error:</b> <%= error %></div>
+          <% } %>
+
+          <% if (message) { %>
+            <div class="okbox"><b>OK:</b> <%= message %></div>
+          <% } %>
+        </form>
+
+        <div class="row">
+          <form method="post" action="/admin/otp/resend" style="flex:1">
+            <button class="btn" id="resendBtn" type="submit">Reenviar código</button>
+          </form>
+
+          <a class="btn" href="/admin/login">Volver</a>
+        </div>
+
+        <div class="foot">
+          Si no te llega, revisa <b>Spam</b> o <b>No deseados</b>. Si sigues con problemas, pide al SUPERADMIN validar tu correo.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const code = document.getElementById("code");
+    const resendBtn = document.getElementById("resendBtn");
+    const pillText = document.getElementById("pillText");
+    const pDot = document.getElementById("pDot");
+
+    // Solo números
+    code.addEventListener("input", () => {
+      code.value = code.value.replace(/[^\d]/g, "").slice(0, 6);
+
+      if (code.value.length === 6) {
+        pillText.textContent = "Código completo";
+        pDot.classList.add("ok");
+      } else {
+        pillText.textContent = "Listo para verificar";
+        pDot.classList.remove("ok");
+      }
+    });
+
+    // Enfocar
+    if (code) code.focus();
+
+    // UX: cooldown local para reenviar (solo visual)
+    let seconds = 45;
+    function tick(){
+      if (!resendBtn) return;
+
+      if (seconds > 0) {
+        resendBtn.disabled = true;
+        resendBtn.textContent = `Reenviar en ${seconds}s`;
+        seconds--;
+        setTimeout(tick, 1000);
+      } else {
+        resendBtn.disabled = false;
+        resendBtn.textContent = "Reenviar código";
+      }
+    }
+    tick();
+  </script>
+</body>
+</html>

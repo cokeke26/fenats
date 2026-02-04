@@ -100,7 +100,6 @@
       letter-spacing: .2px;
     }
 
-    /* Inputs base */
     .input{
       width:100%;
       border-radius:14px;
@@ -113,7 +112,6 @@
     }
     .input::placeholder{color: rgba(255,255,255,.55)}
 
-    /* ✅ Fix para SELECT en Windows/Chrome: tema + opciones */
     select.input{
       appearance:none;
       -webkit-appearance:none;
@@ -121,11 +119,8 @@
 
       background-color: rgba(255,255,255,.06);
       color: var(--text);
-
-      /* fuerza modo oscuro en control nativo */
       color-scheme: dark;
 
-      /* deja espacio para la flecha */
       padding-right: 40px;
       cursor: pointer;
     }
@@ -133,8 +128,6 @@
       background: var(--bg);
       color: var(--text);
     }
-
-    /* Flecha del select (sin tocar HTML) */
     .selectWrap{ position:relative; }
     .selectWrap::after{
       content:"▾";
@@ -147,7 +140,6 @@
       font-size: 14px;
     }
 
-    .row{display:flex; gap:10px; flex-wrap:wrap}
     .actions{
       margin-top: 12px;
       display:flex;
@@ -184,7 +176,63 @@
       font-size: 12px;
       line-height: 1.4;
     }
-    code{color: rgba(255,255,255,.88)}
+
+    /* ✅ Password checklist */
+    .checks{
+      margin-top:10px;
+      padding: 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.05);
+    }
+    .checksTitle{
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 900;
+      letter-spacing: .2px;
+      margin-bottom: 8px;
+    }
+    .check{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      font-size: 13px;
+      color: rgba(255,255,255,.75);
+      margin: 6px 0;
+    }
+    .icon{
+      width:18px;height:18px;border-radius:999px;
+      border:1px solid rgba(255,255,255,.20);
+      display:inline-flex;align-items:center;justify-content:center;
+      font-weight: 950;
+      font-size: 12px;
+      color: rgba(255,255,255,.60);
+      background: rgba(255,255,255,.06);
+      flex: 0 0 18px;
+    }
+    .check.ok{ color: rgba(255,255,255,.92); }
+    .check.ok .icon{
+      border-color: rgba(34,197,94,.40);
+      background: rgba(34,197,94,.14);
+      color: rgba(34,197,94,1);
+    }
+
+    /* helper para username */
+    .small{
+      margin-top:6px;
+      font-size:12px;
+      color: var(--muted);
+      line-height: 1.35;
+    }
+    .pill{
+      display:inline-flex;align-items:center;gap:8px;
+      padding:8px 10px;border-radius:999px;
+      border:1px solid rgba(255,255,255,.14);
+      background:rgba(255,255,255,.06);
+      font-size:12px;font-weight:900;
+      margin-top:10px;
+    }
+    .pDot{width:8px;height:8px;border-radius:999px;background: rgba(255,255,255,.45)}
   </style>
 </head>
 <body>
@@ -205,30 +253,47 @@
     <div class="card">
       <div class="head">
         <h1>Crear usuario administrador</h1>
-        <p>Solo SUPERADMIN puede crear usuarios. Las contraseñas se guardan hasheadas (bcrypt).</p>
+        <p>Solo SUPERADMIN puede crear usuarios. Las contraseñas se guardan encriptadas.</p>
       </div>
 
       <div class="body">
-        <form method="post" action="/admin/users/new">
+        <form id="form" method="post" action="/admin/users/new" novalidate>
           <div class="grid">
             <div>
-              <label class="label" for="username">Usuario</label>
+              <label class="label" for="username">Usuario (RUT sin DV)</label>
               <input
                 id="username"
                 class="input"
                 type="text"
                 name="username"
-                placeholder="Ej: jorge"
+                inputmode="numeric"
+                autocomplete="off"
+                placeholder="Ej: 12345678"
                 value="<%= values?.username ?? '' %>"
                 required
-                minlength="3"
+                minlength="8"
+                maxlength="8"
+                pattern="^\d{8}$"
+              />
+              <div class="small">Debe ser exactamente <b>8 dígitos</b> (solo números). Ej: si tu RUT es 12.345.678-9, aquí va: <b>12345678</b>.</div>
+              <div class="pill"><span class="pDot"></span><span id="userStatus">Esperando 8 dígitos...</span></div>
+            </div>
+
+            <div>
+            <label class="label" for="email">Correo</label>
+            <input
+              id="email"
+              class="input"
+              type="email"
+              name="email"
+              placeholder="ej: usuario@fenats.cl"
+              value="<%= values?.email ?? '' %>"
+              required
               />
             </div>
 
             <div>
               <label class="label" for="role">Rol</label>
-
-              <!-- ✅ wrap para la flecha -->
               <div class="selectWrap">
                 <select id="role" class="input" name="role" required>
                   <% const currentRole = (values?.role ?? 'VIEWER').toUpperCase(); %>
@@ -250,11 +315,21 @@
                 class="input"
                 type="password"
                 name="password"
-                placeholder="Mínimo 6 caracteres"
+                placeholder="Mínimo 8 + mayúscula + número + símbolo"
                 required
-                minlength="6"
+                minlength="8"
                 autocomplete="new-password"
               />
+
+              <div class="checks" aria-live="polite">
+                <div class="checksTitle">Requisitos de contraseña</div>
+
+                <div id="cLen" class="check"><span class="icon">•</span><span>Mínimo 8 caracteres</span></div>
+                <div id="cUpper" class="check"><span class="icon">•</span><span>Al menos 1 letra mayúscula (A-Z)</span></div>
+                <div id="cNum" class="check"><span class="icon">•</span><span>Al menos 1 número (0-9)</span></div>
+                <div id="cSym" class="check"><span class="icon">•</span><span>Al menos 1 símbolo (ej: !@#$)</span></div>
+                <div id="cMatch" class="check"><span class="icon">•</span><span>Coincide con confirmación</span></div>
+              </div>
             </div>
 
             <div>
@@ -266,15 +341,16 @@
                 name="password2"
                 placeholder="Repite la contraseña"
                 required
-                minlength="6"
+                minlength="8"
                 autocomplete="new-password"
               />
+              <div class="small">Tip: usa una frase larga + símbolos. Ej: <b>Fenats@2026!</b> (mejor aún más larga).</div>
             </div>
           </div>
 
           <div class="actions">
-            <button class="btn btnPrimary" type="submit">Crear usuario</button>
-            <a class="btn" href="/admin">Volver</a>
+            <button id="btnSubmit" class="btn btnPrimary" type="submit">Crear usuario</button>
+            <a class="btn" href="/admin/users">Volver</a>
           </div>
 
           <% if (error) { %>
@@ -287,24 +363,91 @@
         </form>
 
         <div class="hint">
-          Recomendación: no uses contraseñas obvias. Si es un sistema real, activa HTTPS y cookies seguras.
+          Recomendación: en producción usa HTTPS, cookies seguras y 2FA (SMS/WhatsApp/Authenticator).
         </div>
       </div>
     </div>
   </div>
 
   <script>
-    // Validación simple cliente (no reemplaza backend)
-    const form = document.querySelector("form");
+    const form = document.getElementById("form");
+    const username = document.getElementById("username");
+    const userStatus = document.getElementById("userStatus");
+    const password = document.getElementById("password");
+    const password2 = document.getElementById("password2");
+    const btnSubmit = document.getElementById("btnSubmit");
+
+    const cLen = document.getElementById("cLen");
+    const cUpper = document.getElementById("cUpper");
+    const cNum = document.getElementById("cNum");
+    const cSym = document.getElementById("cSym");
+    const cMatch = document.getElementById("cMatch");
+
+    function setOk(el, ok){
+      el.classList.toggle("ok", !!ok);
+      const icon = el.querySelector(".icon");
+      icon.textContent = ok ? "✓" : "•";
+    }
+
+    function onlyDigits8(v){
+      return (v || "").replace(/\D/g, "").slice(0, 8);
+    }
+
+    function validateUsername(){
+      const v = onlyDigits8(username.value);
+      if (username.value !== v) username.value = v;
+
+      const ok = /^\d{8}$/.test(v);
+      userStatus.textContent = ok ? "OK (8 dígitos)" : `Llevas ${v.length}/8 dígitos`;
+      return ok;
+    }
+
+    function validatePassword(){
+      const p = password.value || "";
+      const p2 = password2.value || "";
+
+      const okLen = p.length >= 8;
+      const okUpper = /[A-Z]/.test(p);
+      const okNum = /[0-9]/.test(p);
+      // símbolo = cualquier caracter que no sea letra o número (incluye espacios, por eso lo evitamos)
+      const okSym = /[^A-Za-z0-9]/.test(p);
+      const okMatch = p.length > 0 && p === p2;
+
+      setOk(cLen, okLen);
+      setOk(cUpper, okUpper);
+      setOk(cNum, okNum);
+      setOk(cSym, okSym);
+      setOk(cMatch, okMatch);
+
+      return okLen && okUpper && okNum && okSym && okMatch;
+    }
+
+    function refresh(){
+      const uOk = validateUsername();
+      const pOk = validatePassword();
+
+      btnSubmit.disabled = !(uOk && pOk);
+      btnSubmit.style.opacity = btnSubmit.disabled ? .65 : 1;
+      btnSubmit.style.cursor = btnSubmit.disabled ? "not-allowed" : "pointer";
+    }
+
+    username.addEventListener("input", refresh);
+    password.addEventListener("input", refresh);
+    password2.addEventListener("input", refresh);
+
+    // Inicial (para cuando vuelve con values)
+    refresh();
+
     form.addEventListener("submit", (e) => {
-      const p1 = document.getElementById("password").value;
-      const p2 = document.getElementById("password2").value;
-      if (p1 !== p2) {
+      const uOk = validateUsername();
+      const pOk = validatePassword();
+      if (!uOk || !pOk) {
         e.preventDefault();
-        alert("Las contraseñas no coinciden.");
+        alert("Revisa el usuario (8 dígitos) y los requisitos de contraseña.");
       }
     });
   </script>
 </body>
 </html>
+
 
