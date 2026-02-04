@@ -26,7 +26,15 @@
         radial-gradient(700px 500px at 40% 90%, rgba(245,158,11,.16), transparent 60%),
         var(--bg);
       padding: 24px;
+
+      /* ✅ para footer abajo */
+      display:flex;
+      flex-direction:column;
     }
+
+    /* ✅ empuja footer al fondo */
+    .page{flex:1}
+
     .wrap{width:min(1150px,100%); margin:0 auto}
     .top{
       display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;
@@ -139,124 +147,127 @@
 <body>
   <% const canEdit = role === "ADMIN" || role === "SUPERADMIN"; %>
 
-  <div class="wrap">
-    <div class="top">
-      <div class="brand"><span class="dot"></span><span>FENATS · Socios</span></div>
-      <div class="nav">
-        <a class="btn" href="/admin">Panel</a>
+  <div class="page">
+    <div class="wrap">
+      <div class="top">
+        <div class="brand"><span class="dot"></span><span>FENATS · Socios</span></div>
+        <div class="nav">
+          <a class="btn" href="/admin">Panel</a>
 
-        <% if (canEdit) { %>
-          <a class="btn btnPrimary" href="/admin/new">Agregar socio</a>
-          <a class="btn" href="/admin/upload">Importar Excel</a>
-        <% } %>
-
-        <a class="btn" href="/admin/logout">Salir</a>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="head">
-        <h1>Gestión de socios</h1>
-        <p>
-          Busca por RUT, nombre o token.
           <% if (canEdit) { %>
-            Desde aquí puedes activar/inactivar, regenerar token y descargar QR.
-          <% } else { %>
-            Acceso de solo lectura: puedes ver socios y descargar QR.
+            <a class="btn btnPrimary" href="/admin/new">Agregar socio</a>
+            <a class="btn" href="/admin/upload">Importar Excel</a>
           <% } %>
-        </p>
+
+          <a class="btn" href="/admin/logout">Salir</a>
+        </div>
       </div>
-      <div class="body">
-        <form class="search" method="get" action="/admin/members">
-          <input class="input" name="q" value="<%= q %>" placeholder="Ej: 9.313.137-1, Juan Pérez, o token..." />
-          <button class="btn btnPrimary" type="submit">Buscar</button>
-          <a class="btn" href="/admin/members">Limpiar</a>
-        </form>
-        <div class="hint">
-          Consejo: Puedes ingresar un RUT con o sin puntos. El sistema lo detecta.
+
+      <div class="card">
+        <div class="head">
+          <h1>Gestión de socios</h1>
+          <p>
+            Busca por RUT, nombre o token.
+            <% if (canEdit) { %>
+              Desde aquí puedes activar/inactivar, regenerar token y descargar QR.
+            <% } else { %>
+              Acceso de solo lectura: puedes ver socios y descargar QR.
+            <% } %>
+          </p>
         </div>
+        <div class="body">
+          <form class="search" method="get" action="/admin/members">
+            <input class="input" name="q" value="<%= q %>" placeholder="Ej: 9.313.137-1, Juan Pérez, o token..." />
+            <button class="btn btnPrimary" type="submit">Buscar</button>
+            <a class="btn" href="/admin/members">Limpiar</a>
+          </form>
+          <div class="hint">
+            Consejo: Puedes ingresar un RUT con o sin puntos. El sistema lo detecta.
+          </div>
 
-        <div style="height:12px"></div>
+          <div style="height:12px"></div>
 
-        <!-- ✅ Wrapper para scroll horizontal en móvil -->
-        <div class="tableScroll">
-          <table class="tableMin">
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Nombre</th>
-                <th>RUT</th>
-                <th>Filial</th>
-                <th>Estado</th>
-                <th>Links</th>
-                <th>Token</th>
-                <th style="text-align:right">Acciones</th>
-              </tr>
-            </thead>
-            <tbody>
-              <% members.forEach(m => { %>
+          <div class="tableScroll">
+            <table class="tableMin">
+              <thead>
                 <tr>
-                  <td class="muted"><%= m.id %></td>
-
-                  <td>
-                    <div style="font-weight:900"><%= m.fullName %></div>
-                    <div class="muted" style="font-size:12px">
-                      Actualizado: <%= new Date(m.updatedAt).toLocaleString("es-CL") %>
-                    </div>
-                  </td>
-
-                  <td>
-                    <div style="font-weight:900"><%= m.rutMasked %></div>
-                    <div class="muted" style="font-size:12px">Normalizado: <%= m.rut %></div>
-                  </td>
-
-                  <td class="muted"><%= m.affiliate || "-" %></td>
-
-                  <td>
-                    <% if (m.status === "ACTIVE") { %>
-                      <span class="badge"><span class="bDot ok"></span>VIGENTE</span>
-                    <% } else { %>
-                      <span class="badge"><span class="bDot warn"></span>NO VIGENTE</span>
-                    <% } %>
-                  </td>
-
-                  <td>
-                    <div><a class="link" href="/s/<%= m.token %>" target="_blank" rel="noreferrer">Validación</a></div>
-                    <div><a class="link" href="/credencial/<%= m.token %>" target="_blank" rel="noreferrer">Credencial</a></div>
-                  </td>
-
-                  <td><code><%= m.token %></code></td>
-
-                  <td>
-                    <div class="actions">
-                      <a class="btn mini" href="/qr/<%= m.token %>.png" target="_blank" rel="noreferrer">Descargar QR</a>
-
-                      <% if (canEdit) { %>
-                        <form method="post" action="/admin/members/<%= m.id %>/toggle" style="display:inline">
-                          <button class="btn mini" type="submit"><%= m.status === "ACTIVE" ? "Inactivar" : "Activar" %></button>
-                        </form>
-
-                        <form method="post" action="/admin/members/<%= m.id %>/regen-token" style="display:inline">
-                          <button class="btn mini" type="submit">Renovar token</button>
-                        </form>
-                      <% } %>
-                    </div>
-                  </td>
+                  <th>ID</th>
+                  <th>Nombre</th>
+                  <th>RUT</th>
+                  <th>Filial</th>
+                  <th>Estado</th>
+                  <th>Links</th>
+                  <th>Token</th>
+                  <th style="text-align:right">Acciones</th>
                 </tr>
-              <% }) %>
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                <% members.forEach(m => { %>
+                  <tr>
+                    <td class="muted"><%= m.id %></td>
 
-        <div class="hint" style="margin-top:8px">
-          En móvil: desliza horizontalmente para ver todas las columnas.
-        </div>
+                    <td>
+                      <div style="font-weight:900"><%= m.fullName %></div>
+                      <div class="muted" style="font-size:12px">
+                        Actualizado: <%= new Date(m.updatedAt).toLocaleString("es-CL") %>
+                      </div>
+                    </td>
 
+                    <td>
+                      <div style="font-weight:900"><%= m.rutMasked %></div>
+                      <div class="muted" style="font-size:12px">Normalizado: <%= m.rut %></div>
+                    </td>
+
+                    <td class="muted"><%= m.affiliate || "-" %></td>
+
+                    <td>
+                      <% if (m.status === "ACTIVE") { %>
+                        <span class="badge"><span class="bDot ok"></span>VIGENTE</span>
+                      <% } else { %>
+                        <span class="badge"><span class="bDot warn"></span>NO VIGENTE</span>
+                      <% } %>
+                    </td>
+
+                    <td>
+                      <div><a class="link" href="/s/<%= m.token %>" target="_blank" rel="noreferrer">Validación</a></div>
+                      <div><a class="link" href="/credencial/<%= m.token %>" target="_blank" rel="noreferrer">Credencial</a></div>
+                    </td>
+
+                    <td><code><%= m.token %></code></td>
+
+                    <td>
+                      <div class="actions">
+                        <a class="btn mini" href="/qr/<%= m.token %>.png" target="_blank" rel="noreferrer">Descargar QR</a>
+
+                        <% if (canEdit) { %>
+                          <form method="post" action="/admin/members/<%= m.id %>/toggle" style="display:inline">
+                            <button class="btn mini" type="submit"><%= m.status === "ACTIVE" ? "Inactivar" : "Activar" %></button>
+                          </form>
+
+                          <form method="post" action="/admin/members/<%= m.id %>/regen-token" style="display:inline">
+                            <button class="btn mini" type="submit">Renovar token</button>
+                          </form>
+                        <% } %>
+                      </div>
+                    </td>
+                  </tr>
+                <% }) %>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="hint" style="margin-top:8px">
+            En móvil: desliza horizontalmente para ver todas las columnas.
+          </div>
+        </div>
       </div>
     </div>
   </div>
+
+  <%- include("../partials/footer") %>
 </body>
 </html>
+
 
 
 

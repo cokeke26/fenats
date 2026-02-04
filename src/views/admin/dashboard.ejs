@@ -26,7 +26,15 @@
         radial-gradient(700px 500px at 40% 90%, rgba(245,158,11,.16), transparent 60%),
         var(--bg);
       padding: 24px;
+
+      /* ✅ clave para que el footer quede abajo */
+      display:flex;
+      flex-direction:column;
     }
+
+    /* ✅ empuja el footer hacia abajo */
+    .page{flex:1;}
+
     .wrap{width:min(980px,100%); margin:0 auto}
     .top{
       display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;
@@ -79,46 +87,52 @@
 <body>
   <% const isSuper = role === "SUPERADMIN"; %>
   <% const canManageMembers = role === "ADMIN" || role === "SUPERADMIN"; %>
-  <div class="wrap">
-    <div class="top">
-      <div class="brand"><span class="dot"></span><span>FENATS · Panel Admin</span></div>
-      <div class="nav">
-        <% if (isSuper) { %>
-        <a class="btn btnPrimary" href="/admin/users">Crear Usuario</a>
-        <% } %>
-        <% if (canManageMembers) { %>
-        <a class="btn btnPrimary" href="/admin/new">Nuevo socio</a>
-        <a class="btn btnPrimary" href="/admin/upload">Importar Excel</a>
-        <% } %>
-        <a class="btn" href="/admin/members">Ver socios</a>
-        <a class="btn" href="/admin/logout">Salir</a>
-      </div>
-    </div>
 
-    <div class="grid">
-      <div class="card">
-        <div class="kpi">Total socios</div>
-        <div class="num"><%= total %></div>
-        <div class="pill"><span class="pDot" style="background:rgba(255,255,255,.55)"></span><span>Registros en base</span></div>
+  <div class="page">
+    <div class="wrap">
+      <div class="top">
+        <div class="brand"><span class="dot"></span><span>FENATS · Panel Admin</span></div>
+        <div class="nav">
+          <% if (isSuper) { %>
+          <a class="btn btnPrimary" href="/admin/users">Crear Usuario</a>
+          <% } %>
+          <% if (canManageMembers) { %>
+          <a class="btn btnPrimary" href="/admin/new">Nuevo socio</a>
+          <a class="btn btnPrimary" href="/admin/upload">Importar Excel</a>
+          <% } %>
+          <a class="btn" href="/admin/members">Ver socios</a>
+          <a class="btn" href="/admin/logout">Salir</a>
+        </div>
       </div>
 
-      <div class="card">
-        <div class="kpi">Vigentes</div>
-        <div class="num"><%= active %></div>
-        <div class="pill"><span class="pDot ok"></span><span>Estado ACTIVO</span></div>
+      <div class="grid">
+        <div class="card">
+          <div class="kpi">Total socios</div>
+          <div class="num"><%= total %></div>
+          <div class="pill"><span class="pDot" style="background:rgba(255,255,255,.55)"></span><span>Registros en base</span></div>
+        </div>
+
+        <div class="card">
+          <div class="kpi">Vigentes</div>
+          <div class="num"><%= active %></div>
+          <div class="pill"><span class="pDot ok"></span><span>Estado ACTIVO</span></div>
+        </div>
+
+        <div class="card">
+          <div class="kpi">No vigentes</div>
+          <div class="num"><%= inactive %></div>
+          <div class="pill"><span class="pDot warn"></span><span>Estado INACTIVO</span></div>
+        </div>
       </div>
 
-      <div class="card">
-        <div class="kpi">No vigentes</div>
-        <div class="num"><%= inactive %></div>
-        <div class="pill"><span class="pDot warn"></span><span>Estado INACTIVO</span></div>
+      <div class="note">
+        Este panel permite importar planillas, gestionar vigencia, regenerar tokens y abrir enlaces de validación/credencial.
       </div>
-    </div>
-
-    <div class="note">
-      Este panel permite importar planillas, gestionar vigencia, regenerar tokens y abrir enlaces de validación/credencial.
     </div>
   </div>
+
+  <%- include("../partials/footer") %>
 </body>
 </html>
+
 

@@ -32,11 +32,21 @@
         radial-gradient(900px 600px at 90% 30%, rgba(59,130,246,.20), transparent 60%),
         radial-gradient(700px 500px at 40% 90%, rgba(245,158,11,.16), transparent 60%),
         var(--bg);
+      padding: 24px;
+
+      /* ✅ para footer abajo */
+      display:flex;
+      flex-direction:column;
+    }
+
+    /* ✅ empuja footer al fondo */
+    .page{
+      flex:1;
       display:flex;
       align-items:center;
       justify-content:center;
-      padding: 24px;
     }
+
     .wrap{width:min(560px,100%)}
     .brand{
       display:flex; align-items:center; gap:10px;
@@ -152,60 +162,63 @@
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <div class="brand">
-      <span class="dot"></span>
-      <span>FENATS · Verificación</span>
-    </div>
 
-    <div class="card">
-      <div class="head">
-        <h1>Ingresa el código</h1>
-        <p>Te enviamos un código de 6 dígitos a tu correo. Tiene una duración limitada.</p>
+  <div class="page">
+    <div class="wrap">
+      <div class="brand">
+        <span class="dot"></span>
+        <span>FENATS · Verificación</span>
       </div>
 
-      <div class="body">
-        <form method="post" action="/admin/otp" autocomplete="off">
-          <input
-            id="code"
-            class="input"
-            name="code"
-            type="text"
-            inputmode="numeric"
-            pattern="\d{6}"
-            maxlength="6"
-            placeholder="● ● ● ● ● ●"
-            required
-          />
-
-          <div class="pill" id="pill">
-            <span class="pDot" id="pDot"></span>
-            <span id="pillText">Listo para verificar</span>
-          </div>
-
-          <div style="height:12px"></div>
-
-          <button class="btn btnPrimary" type="submit">Verificar</button>
-
-          <% if (error) { %>
-            <div class="alert"><b>Error:</b> <%= error %></div>
-          <% } %>
-
-          <% if (message) { %>
-            <div class="okbox"><b>OK:</b> <%= message %></div>
-          <% } %>
-        </form>
-
-        <div class="row">
-          <form method="post" action="/admin/otp/resend" style="flex:1">
-            <button class="btn" id="resendBtn" type="submit">Reenviar código</button>
-          </form>
-
-          <a class="btn" href="/admin/login">Volver</a>
+      <div class="card">
+        <div class="head">
+          <h1>Ingresa el código</h1>
+          <p>Te enviamos un código de 6 dígitos a tu correo. Tiene una duración limitada.</p>
         </div>
 
-        <div class="foot">
-          Si no te llega, revisa <b>Spam</b> o <b>No deseados</b>. Si sigues con problemas, pide al SUPERADMIN validar tu correo.
+        <div class="body">
+          <form method="post" action="/admin/otp" autocomplete="off">
+            <input
+              id="code"
+              class="input"
+              name="code"
+              type="text"
+              inputmode="numeric"
+              pattern="\d{6}"
+              maxlength="6"
+              placeholder="● ● ● ● ● ●"
+              required
+            />
+
+            <div class="pill" id="pill">
+              <span class="pDot" id="pDot"></span>
+              <span id="pillText">Listo para verificar</span>
+            </div>
+
+            <div style="height:12px"></div>
+
+            <button class="btn btnPrimary" type="submit">Verificar</button>
+
+            <% if (error) { %>
+              <div class="alert"><b>Error:</b> <%= error %></div>
+            <% } %>
+
+            <% if (message) { %>
+              <div class="okbox"><b>OK:</b> <%= message %></div>
+            <% } %>
+          </form>
+
+          <div class="row">
+            <form method="post" action="/admin/otp/resend" style="flex:1">
+              <button class="btn" id="resendBtn" type="submit">Reenviar código</button>
+            </form>
+
+            <a class="btn" href="/admin/login">Volver</a>
+          </div>
+
+          <div class="foot">
+            Si no te llega, revisa <b>Spam</b> o <b>No deseados</b>. Si sigues con problemas, pide al SUPERADMIN validar tu correo.
+          </div>
         </div>
       </div>
     </div>
@@ -250,5 +263,8 @@
     }
     tick();
   </script>
+
+  <%- include("../partials/footer") %>
 </body>
 </html>
+

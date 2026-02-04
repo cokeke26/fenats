@@ -12,9 +12,9 @@
       --text:rgba(255,255,255,.92);
       --muted:rgba(255,255,255,.70);
       --shadow:0 20px 60px rgba(0,0,0,.35);
-      --ok:#22c55e; 
-      --warn:#f59e0b; 
-      --bad:#ef4444; 
+      --ok:#22c55e;
+      --warn:#f59e0b;
+      --bad:#ef4444;
       --blue:#3b82f6;
       --btn: rgba(255,255,255,.10);
       --btnBorder: rgba(255,255,255,.16);
@@ -29,7 +29,15 @@
         radial-gradient(700px 500px at 40% 90%, rgba(245,158,11,.16), transparent 60%),
         var(--bg);
       padding: 24px;
+
+      /* ✅ para footer abajo */
+      display:flex;
+      flex-direction:column;
     }
+
+    /* ✅ empuja el footer al fondo cuando hay poco contenido */
+    .page{ flex:1; }
+
     .wrap{width:min(980px,100%); margin:0 auto}
     .top{
       display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;
@@ -89,123 +97,126 @@
     @media (max-width: 820px){
       .grid{grid-template-columns:1fr}
     }
+
     /* --- Fix selects en Windows/Chrome --- */
-select.input{
-  appearance: none;
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  background-color: rgba(255,255,255,.06);
-  color: var(--text);
-}
-
-/* fondo/contraste del dropdown */
-select.input option{
-  background-color: #0b1220;
-  color: rgba(255,255,255,.92);
-}
-
-/* foco consistente */
-select.input:focus,
-input.input:focus{
-  outline: none;
-  border-color: rgba(255,255,255,.28);
-  box-shadow: 0 0 0 4px rgba(255,255,255,.06);
-}
+    select.input{
+      appearance: none;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      background-color: rgba(255,255,255,.06);
+      color: var(--text);
+    }
+    select.input option{
+      background-color: #0b1220;
+      color: rgba(255,255,255,.92);
+    }
+    select.input:focus,
+    input.input:focus{
+      outline: none;
+      border-color: rgba(255,255,255,.28);
+      box-shadow: 0 0 0 4px rgba(255,255,255,.06);
+    }
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <div class="top">
-      <div class="brand">
-        <span class="dot"></span>
-        <span>FENATS · Nuevo socio</span>
-      </div>
-      <div class="nav">
-        <a class="btn" href="/admin">Panel</a>
-        <a class="btn" href="/admin/members">Socios</a>
-        <a class="btn" href="/admin/upload">Importar Excel</a>
-        <a class="btn" href="/admin/logout">Salir</a>
-      </div>
-    </div>
 
-    <div class="card">
-      <div class="head">
-        <h1>Ingreso manual de socio</h1>
-        <p>
-          Crea o actualiza un socio por <b>RUT</b>.  
-          Si el RUT ya existe, se actualizan sus datos sin cambiar el token (a menos que lo renueves).
-        </p>
+  <div class="page">
+    <div class="wrap">
+      <div class="top">
+        <div class="brand">
+          <span class="dot"></span>
+          <span>FENATS · Nuevo socio</span>
+        </div>
+        <div class="nav">
+          <a class="btn" href="/admin">Panel</a>
+          <a class="btn" href="/admin/members">Socios</a>
+          <a class="btn" href="/admin/upload">Importar Excel</a>
+          <a class="btn" href="/admin/logout">Salir</a>
+        </div>
       </div>
 
-      <div class="body">
-        <form method="post" action="/admin/new">
-          <div class="grid">
-            <div class="field">
-              <div class="label">Nombre completo</div>
-              <input
-                class="input"
-                name="fullName"
-                placeholder="Ej: Juan Pérez Soto"
-                value="<%= values?.fullName ?? '' %>"
-                required
-              />
+      <div class="card">
+        <div class="head">
+          <h1>Ingreso manual de socio</h1>
+          <p>
+            Crea o actualiza un socio por <b>RUT</b>.
+            Si el RUT ya existe, se actualizan sus datos sin cambiar el token (a menos que lo renueves).
+          </p>
+        </div>
+
+        <div class="body">
+          <form method="post" action="/admin/new">
+            <div class="grid">
+              <div class="field">
+                <div class="label">Nombre completo</div>
+                <input
+                  class="input"
+                  name="fullName"
+                  placeholder="Ej: Juan Pérez Soto"
+                  value="<%= values?.fullName ?? '' %>"
+                  required
+                />
+              </div>
+
+              <div class="field">
+                <div class="label">RUT</div>
+                <input
+                  class="input"
+                  name="rut"
+                  placeholder="Ej: 9.313.137-1"
+                  value="<%= values?.rut ?? '' %>"
+                  required
+                />
+              </div>
+
+              <div class="field">
+                <div class="label">Filial (opcional)</div>
+                <input
+                  class="input"
+                  name="affiliate"
+                  placeholder="Ej: FENATS OCTAVA"
+                  value="<%= values?.affiliate ?? '' %>"
+                />
+              </div>
+
+              <div class="field">
+                <div class="label">Estado</div>
+                <select class="input" name="status">
+                  <option value="ACTIVE" <%= (values?.status ?? 'ACTIVE') === 'ACTIVE' ? 'selected' : '' %>>Vigente</option>
+                  <option value="INACTIVE" <%= values?.status === 'INACTIVE' ? 'selected' : '' %>>No vigente</option>
+                </select>
+              </div>
+
+              <div class="field">
+                <div class="label">Género (opcional)</div>
+                <select class="input" name="gender">
+                  <option value="" <%= !values?.gender ? 'selected' : '' %>>No especificar</option>
+                  <option value="MALE" <%= values?.gender === 'MALE' ? 'selected' : '' %>>Masculino</option>
+                  <option value="FEMALE" <%= values?.gender === 'FEMALE' ? 'selected' : '' %>>Femenino</option>
+                  <option value="OTHER" <%= values?.gender === 'OTHER' ? 'selected' : '' %>>Otro</option>
+                </select>
+              </div>
             </div>
 
-            <div class="field">
-              <div class="label">RUT</div>
-              <input
-                class="input"
-                name="rut"
-                placeholder="Ej: 9.313.137-1"
-                value="<%= values?.rut ?? '' %>"
-                required
-              />
+            <div class="bar">
+              <button class="btn btnPrimary" type="submit">Guardar socio</button>
+              <a class="btn" href="/admin/members">Volver al listado</a>
             </div>
+          </form>
 
-            <div class="field">
-              <div class="label">Filial (opcional)</div>
-              <input
-                class="input"
-                name="affiliate"
-                placeholder="Ej: FENATS OCTAVA"
-                value="<%= values?.affiliate ?? '' %>"
-              />
-            </div>
+          <% if (message) { %>
+            <div class="alert okBox"><b><%= message %></b></div>
+          <% } %>
 
-            <div class="field">
-              <div class="label">Estado</div>
-              <select class="input" name="status">
-                <option value="ACTIVE" <%= (values?.status ?? 'ACTIVE') === 'ACTIVE' ? 'selected' : '' %>>Vigente</option>
-                <option value="INACTIVE" <%= values?.status === 'INACTIVE' ? 'selected' : '' %>>No vigente</option>
-              </select>
-            </div>
-
-            <div class="field">
-              <div class="label">Género (opcional)</div>
-              <select class="input" name="gender">
-                <option value="" <%= !values?.gender ? 'selected' : '' %>>No especificar</option>
-                <option value="MALE" <%= values?.gender === 'MALE' ? 'selected' : '' %>>Masculino</option>
-                <option value="FEMALE" <%= values?.gender === 'FEMALE' ? 'selected' : '' %>>Femenino</option>
-                <option value="OTHER" <%= values?.gender === 'OTHER' ? 'selected' : '' %>>Otro</option>
-              </select>
-            </div>
-          </div>
-
-          <div class="bar">
-            <button class="btn btnPrimary" type="submit">Guardar socio</button>
-            <a class="btn" href="/admin/members">Volver al listado</a>
-          </div>
-        </form>
-
-        <% if (message) { %>
-          <div class="alert okBox"><b><%= message %></b></div>
-        <% } %>
-
-        <% if (error) { %>
-          <div class="alert badBox"><b><%= error %></b></div>
-        <% } %>
+          <% if (error) { %>
+            <div class="alert badBox"><b><%= error %></b></div>
+          <% } %>
+        </div>
       </div>
     </div>
   </div>
+
+  <%- include("../partials/footer") %>
 </body>
 </html>
+

@@ -1,0 +1,42 @@
+<style>
+    .footer{
+  margin-top: 28px;
+  padding: 18px 22px;
+  border-top: 1px solid rgba(255,255,255,.12);
+  color: rgba(255,255,255,.65);
+  font-size: 12px;
+  width: 100%;
+}
+
+.footerInner{
+  display: flex;
+  gap: 14px;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.footerDev{
+  opacity: .7;
+}
+
+@media (max-width: 640px){
+  .footerInner{
+    flex-direction: column;
+    text-align: center;
+  }
+}
+</style>
+
+<footer class="footer">
+  <div class="footerInner">
+    <div>
+      <strong>FENATS Octava Región · Chile</strong><br />
+      Teléfono: (41) 343 3290<br />
+      Dirección: Argentina 1037, Concepción, Biobío
+    </div>
+
+    <div class="footerDev">
+      Sistema desarrollado por <strong>Hidracode Solutions</strong>
+    </div>
+  </div>
+</footer>

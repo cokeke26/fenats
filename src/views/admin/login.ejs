@@ -32,11 +32,21 @@
         radial-gradient(900px 600px at 90% 30%, rgba(59,130,246,.20), transparent 60%),
         radial-gradient(700px 500px at 40% 90%, rgba(245,158,11,.16), transparent 60%),
         var(--bg);
+      padding: 24px;
+
+      /* ✅ para footer abajo */
+      display:flex;
+      flex-direction:column;
+    }
+
+    /* ✅ empuja footer al fondo */
+    .page{
+      flex:1;
       display:flex;
       align-items:center;
       justify-content:center;
-      padding: 24px;
     }
+
     .wrap{width:min(560px,100%)}
     .brand{
       display:flex; align-items:center; gap:10px;
@@ -108,63 +118,67 @@
     }
   </style>
 </head>
-<body>
-  <div class="wrap">
-    <div class="brand">
-      <span class="dot"></span>
-      <span>FENATS · Panel Admin</span>
-    </div>
 
-    <div class="card">
-      <div class="head">
-        <h1>Ingreso de administración</h1>
-        <p>Acceso restringido para gestión de socios, importación de planillas y tokens QR.</p>
+<body>
+  <div class="page">
+    <div class="wrap">
+      <div class="brand">
+        <span class="dot"></span>
+        <span>FENATS · Panel Admin</span>
       </div>
 
-      <div class="body">
-        <!-- Ahora el login es por usuario + contraseña (AdminUser en BD) -->
-        <form method="post" action="/admin/login" autocomplete="on">
-          <input
-            class="input"
-            type="text"
-            name="username"
-            placeholder="Usuario"
-            value="<%= typeof username !== 'undefined' ? username : '' %>"
-            autocomplete="username"
-            required
-          />
-          <div style="height:12px"></div>
+      <div class="card">
+        <div class="head">
+          <h1>Ingreso de administración</h1>
+          <p>Acceso restringido para gestión de socios, importación de planillas y tokens QR.</p>
+        </div>
 
-          <input
-            class="input"
-            type="password"
-            name="password"
-            placeholder="Contraseña"
-            autocomplete="current-password"
-            required
-          />
-          <div style="height:12px"></div>
+        <div class="body">
+          <form method="post" action="/admin/login" autocomplete="on">
+            <input
+              class="input"
+              type="text"
+              name="username"
+              placeholder="Usuario"
+              value="<%= typeof username !== 'undefined' ? username : '' %>"
+              autocomplete="username"
+              required
+            />
+            <div style="height:12px"></div>
 
-          <button class="btn btnPrimary" type="submit">Ingresar</button>
+            <input
+              class="input"
+              type="password"
+              name="password"
+              placeholder="Contraseña"
+              autocomplete="current-password"
+              required
+            />
+            <div style="height:12px"></div>
 
-          <% if (error) { %>
-            <div class="alert"><b>Error:</b> <%= error %></div>
-          <% } %>
-        </form>
+            <button class="btn btnPrimary" type="submit">Ingresar</button>
 
-        <div class="foot">
-          Si olvidaste tu acceso, solicita a tu jefatura que te restablezca la contraseña.
+            <% if (error) { %>
+              <div class="alert"><b>Error:</b> <%= error %></div>
+            <% } %>
+          </form>
+
+          <div class="foot">
+            Si olvidaste tu acceso, solicita a tu jefatura que te restablezca la contraseña.
+          </div>
         </div>
       </div>
     </div>
   </div>
 
   <script>
-    // Enfoca el primer campo (mejora UX sin cambiar diseño)
     const u = document.querySelector('input[name="username"]');
     if (u && !u.value) u.focus();
   </script>
+
+  <%- include("../partials/footer") %>
 </body>
 </html>
+
 
 

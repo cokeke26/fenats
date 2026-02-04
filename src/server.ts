@@ -270,7 +270,6 @@ app.get("/credencial/:token", async (req: Request, res: Response) => {
         <div class="p"><b>Nombre:</b> ${escapeHtml(member.fullName)}</div>
         <div class="p"><b>RUT:</b> ${escapeHtml(member.rutMasked)}</div>
         <div class="p"><b>Filial:</b> ${escapeHtml(member.affiliate ?? "-")}</div>
-        <div class="p"><b>Token:</b> ${escapeHtml(member.token)}</div>
       </div>
 
       <div class="qrWrap">

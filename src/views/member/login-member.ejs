@@ -32,11 +32,21 @@
         radial-gradient(900px 600px at 90% 30%, rgba(59,130,246,.20), transparent 60%),
         radial-gradient(700px 500px at 40% 90%, rgba(245,158,11,.16), transparent 60%),
         var(--bg);
+
+      /* ✅ cambio clave: layout en columna */
+      display:flex;
+      flex-direction:column;
+      padding: 24px;
+    }
+
+    /* ✅ centra el card y deja el footer abajo */
+    .page{
+      flex:1;
       display:flex;
       align-items:center;
       justify-content:center;
-      padding: 24px;
     }
+
     .wrap{width:min(560px,100%)}
     .brand{
       display:flex; align-items:center; gap:10px;
@@ -108,41 +118,43 @@
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <div class="brand">
-      <span class="dot"></span>
-      <span>FENATS · Credencial Socio</span>
-    </div>
-
-    <div class="card">
-      <div class="head">
-        <h1>Ingresar a tu credencial</h1>
-        <p>Ingresa tu <b>RUT con DV</b> para abrir tu credencial con QR.</p>
+  <div class="page">
+    <div class="wrap">
+      <div class="brand">
+        <span class="dot"></span>
+        <span>FENATS · Credencial Socio</span>
       </div>
 
-      <div class="body">
-        <form method="post" action="/login-member" autocomplete="on">
-          <input
-            class="input"
-            type="text"
-            name="rut"
-            placeholder="Ej: 9.313.137-1"
-            value="<%= typeof rut !== 'undefined' ? rut : '' %>"
-            autocomplete="username"
-            required
-          />
+      <div class="card">
+        <div class="head">
+          <h1>Ingresar a tu credencial</h1>
+          <p>Ingresa tu <b>RUT con DV</b> para abrir tu credencial con QR.</p>
+        </div>
 
-          <div style="height:12px"></div>
+        <div class="body">
+          <form method="post" action="/login-member" autocomplete="on">
+            <input
+              class="input"
+              type="text"
+              name="rut"
+              placeholder="Ej: 9.313.137-1"
+              value="<%= typeof rut !== 'undefined' ? rut : '' %>"
+              autocomplete="username"
+              required
+            />
 
-          <button class="btn btnPrimary" type="submit">Ver credencial</button>
+            <div style="height:12px"></div>
 
-          <% if (error) { %>
-            <div class="alert"><b>Error:</b> <%= error %></div>
-          <% } %>
-        </form>
+            <button class="btn btnPrimary" type="submit">Ver credencial</button>
 
-        <div class="foot">
-          Tip: puedes escribir el RUT con o sin puntos. Debe incluir el <b>DV</b> (ej: 12345678-9).
+            <% if (error) { %>
+              <div class="alert"><b>Error:</b> <%= error %></div>
+            <% } %>
+          </form>
+
+          <div class="foot">
+            Tip: puedes escribir el RUT con o sin puntos. Debe incluir el <b>DV</b> (ej: 12345678-9).
+          </div>
         </div>
       </div>
     </div>
@@ -152,5 +164,8 @@
     const r = document.querySelector('input[name="rut"]');
     if (r && !r.value) r.focus();
   </script>
+
+  <%- include("../partials/footer") %>
 </body>
 </html>
+

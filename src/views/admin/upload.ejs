@@ -26,7 +26,14 @@
         radial-gradient(700px 500px at 40% 90%, rgba(245,158,11,.16), transparent 60%),
         var(--bg);
       padding: 24px;
+
+      /* ✅ para footer abajo */
+      display:flex;
+      flex-direction:column;
     }
+    /* ✅ empuja el footer al fondo cuando hay poco contenido */
+    .page{ flex: 1; }
+
     .wrap{width:min(980px,100%); margin:0 auto}
     .top{
       display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;
@@ -188,118 +195,121 @@
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <div class="top">
-      <div class="brand"><span class="dot"></span><span>FENATS · Importación</span></div>
-      <div class="nav">
-        <a class="btn" href="/admin">Dashboard</a>
-        <a class="btn" href="/admin/members">Socios</a>
-        <a class="btn" href="/admin/logout">Salir</a>
-      </div>
-    </div>
 
-    <div class="card">
-      <div class="head">
-        <div class="headRow">
-          <div>
-            <h1>Importar planilla de socios</h1>
-            <p>
-              Sube un archivo Excel. El sistema detecta la tabla aunque no esté desde la primera celda.
-              Se crean socios nuevos o se actualizan existentes por <b>RUT</b>.
-            </p>
-          </div>
-
-          <!-- ✅ Botón ayuda -->
-          <button class="helpBtn" type="button" id="openHelp" aria-label="Ver formato recomendado">?</button>
+  <div class="page">
+    <div class="wrap">
+      <div class="top">
+        <div class="brand"><span class="dot"></span><span>FENATS · Importación</span></div>
+        <div class="nav">
+          <a class="btn" href="/admin">Dashboard</a>
+          <a class="btn" href="/admin/members">Socios</a>
+          <a class="btn" href="/admin/logout">Salir</a>
         </div>
       </div>
 
-      <div class="body">
-        <form method="post" action="/admin/upload" enctype="multipart/form-data">
-          <div class="grid">
-            <div class="field">
-              <div class="label">Filial (affiliate)</div>
-              <input class="input" name="affiliate" value="FENATS OCTAVA" />
-              <div class="hint">Ej: FENATS OCTAVA / FENATS ARAUCO / etc.</div>
+      <div class="card">
+        <div class="head">
+          <div class="headRow">
+            <div>
+              <h1>Importar planilla de socios</h1>
+              <p>
+                Sube un archivo Excel. El sistema detecta la tabla aunque no esté desde la primera celda.
+                Se crean socios nuevos o se actualizan existentes por <b>RUT</b>.
+              </p>
             </div>
-            <div class="field">
-              <div class="label">Fuente / referencia de importación</div>
-              <input class="input" name="importSource" value="Arauco 12/2025" />
-              <div class="hint">Ej: “Arauco 12/2025”, “Convenio Parque 01/2026”, etc.</div>
-            </div>
+
+            <!-- ✅ Botón ayuda -->
+            <button class="helpBtn" type="button" id="openHelp" aria-label="Ver formato recomendado">?</button>
           </div>
+        </div>
 
-          <div style="height:12px"></div>
-
-          <div class="field">
-            <div class="label">Archivo Excel</div>
-            <input class="input" type="file" name="file" accept=".xlsx,.xls" required />
-            <div class="hint">Formatos soportados: .xlsx y .xls</div>
-          </div>
-
-          <div class="bar">
-            <button class="btn btnPrimary" type="submit">Importar</button>
-            <a class="btn" href="/admin/members">Ver listado</a>
-          </div>
-        </form>
-
-        <% if (message) { %>
-          <div class="alert <%= (stats && stats.skipped && stats.skipped > 0) ? 'warnBox' : 'okBox' %>">
-            <div><b><%= message %></b></div>
-            <% if (stats) { %>
-              <div style="margin-top:8px">
-                Filas detectadas: <b><%= stats.totalRows %></b> ·
-                Creados: <b><%= stats.created %></b> ·
-                Actualizados: <b><%= stats.updated %></b>
-                <% if (typeof stats.skipped !== "undefined") { %>
-                  · Omitidos: <b><%= stats.skipped %></b>
-                <% } %>
+        <div class="body">
+          <form method="post" action="/admin/upload" enctype="multipart/form-data">
+            <div class="grid">
+              <div class="field">
+                <div class="label">Filial (affiliate)</div>
+                <input class="input" name="affiliate" value="FENATS OCTAVA" />
+                <div class="hint">Ej: FENATS OCTAVA / FENATS ARAUCO / etc.</div>
               </div>
-            <% } %>
-          </div>
-        <% } %>
+              <div class="field">
+                <div class="label">Fuente / referencia de importación</div>
+                <input class="input" name="importSource" value="Arauco 12/2025" />
+                <div class="hint">Ej: “Arauco 12/2025”, “Convenio Parque 01/2026”, etc.</div>
+              </div>
+            </div>
 
+            <div style="height:12px"></div>
+
+            <div class="field">
+              <div class="label">Archivo Excel</div>
+              <input class="input" type="file" name="file" accept=".xlsx,.xls" required />
+              <div class="hint">Formatos soportados: .xlsx y .xls</div>
+            </div>
+
+            <div class="bar">
+              <button class="btn btnPrimary" type="submit">Importar</button>
+              <a class="btn" href="/admin/members">Ver listado</a>
+            </div>
+          </form>
+
+          <% if (message) { %>
+            <div class="alert <%= (stats && stats.skipped && stats.skipped > 0) ? 'warnBox' : 'okBox' %>">
+              <div><b><%= message %></b></div>
+              <% if (stats) { %>
+                <div style="margin-top:8px">
+                  Filas detectadas: <b><%= stats.totalRows %></b> ·
+                  Creados: <b><%= stats.created %></b> ·
+                  Actualizados: <b><%= stats.updated %></b>
+                  <% if (typeof stats.skipped !== "undefined") { %>
+                    · Omitidos: <b><%= stats.skipped %></b>
+                  <% } %>
+                </div>
+              <% } %>
+            </div>
+          <% } %>
+
+        </div>
       </div>
     </div>
-  </div>
 
-  <!-- ✅ Modal ayuda formato Excel -->
-  <div id="helpBack" class="modalBack" aria-hidden="true">
-    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="hTitle">
-      <div class="modalHead">
-        <div>
-          <h2 id="hTitle" class="modalTitle">Formato recomendado de Excel</h2>
-          <div class="modalSub">
-            El sistema busca una fila de encabezados y luego lee hacia abajo.
+    <!-- ✅ Modal ayuda formato Excel -->
+    <div id="helpBack" class="modalBack" aria-hidden="true">
+      <div class="modal" role="dialog" aria-modal="true" aria-labelledby="hTitle">
+        <div class="modalHead">
+          <div>
+            <h2 id="hTitle" class="modalTitle">Formato recomendado de Excel</h2>
+            <div class="modalSub">
+              El sistema busca una fila de encabezados y luego lee hacia abajo.
+            </div>
           </div>
-        </div>
-        <button class="xbtn" type="button" id="closeHelp">✕</button>
-      </div>
-
-      <div class="modalBody">
-        <div style="margin-bottom:10px">
-          <span class="pill">✅ Requerido: RUT + DV</span>
-          <span class="pill">✅ Requerido: NOMBRE</span>
-          <span class="pill">Opcional: GENERO</span>
+          <button class="xbtn" type="button" id="closeHelp">✕</button>
         </div>
 
-        <ul class="list">
-          <li>Encabezados aceptados:</li>
-        </ul>
-        <ul class="list">
-          <li><code>RUT</code> y <code>DV</code> en una sola columna <b>(recomendado)</b>.</li>
-          <li><code>NOMBRE</code> debe existir (si está vacío, la fila no se importa).</li>
-          <li><code>GENERO</code> es opcional (ej: FEMENINO / MASCULINO).</li>
-        </ul>
+        <div class="modalBody">
+          <div style="margin-bottom:10px">
+            <span class="pill">✅ Requerido: RUT + DV</span>
+            <span class="pill">✅ Requerido: NOMBRE</span>
+            <span class="pill">Opcional: GENERO</span>
+          </div>
 
-        <div class="muted2">
-          <b>RUT:</b> puede venir con puntos y guión (<code>12.345.678-9</code>) o sin ellos.
-          El sistema lo detecta automáticamente.
-        </div>
+          <ul class="list">
+            <li>Encabezados aceptados:</li>
+          </ul>
+          <ul class="list">
+            <li><code>RUT</code> y <code>DV</code> en columnas separadas, o <code>RUT DV</code> en una sola columna.</li>
+            <li><code>NOMBRE</code> debe existir (si está vacío, la fila no se importa).</li>
+            <li><code>GENERO</code> es opcional (ej: FEMENINO / MASCULINO).</li>
+          </ul>
 
-        <div class="muted2">
-          Tip: Evita tablas dinámicas dentro de la misma hoja. Si tu archivo tiene “resúmenes” abajo,
-          ideal dejar la tabla principal arriba (o en una hoja aparte).
+          <div class="muted2">
+            <b>RUT:</b> puede venir con puntos y guión (<code>12.345.678-9</code>) o sin ellos.
+            El sistema lo detecta automáticamente.
+          </div>
+
+          <div class="muted2">
+            Tip: Evita tablas dinámicas dentro de la misma hoja. Si tu archivo tiene “resúmenes” abajo,
+            ideal dejar la tabla principal arriba (o en una hoja aparte).
+          </div>
         </div>
       </div>
     </div>
@@ -330,7 +340,10 @@
       if (e.key === "Escape" && helpBack.classList.contains("open")) hideHelp();
     });
   </script>
+
+  <%- include("../partials/footer") %>
 </body>
 </html>
+
 
 
