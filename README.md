@@ -141,6 +141,6 @@ Proyecto privado – Uso interno FENATS.
 
 ## 📸 Capturas
 
-![Login Admin](assets/screenshots/login-admin.png)
-![Dashboard](assets/screenshots/dashboard.png)
-![Credencial QR](assets/screenshots/credential.png)
+![Login Admin](assets/photos/login-admin.png)
+![Dashboard](assets/photos/dashboard.png)
+![Credencial QR](assets/photos/credential.png)
