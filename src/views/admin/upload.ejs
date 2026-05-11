@@ -3,268 +3,511 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>FENATS · Admin · Importación</title>
+  <title>FENATS · Importación Excel</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@700;900&display=swap" rel="stylesheet" />
   <style>
-    :root{
-      --bg:#0b1220;
-      --card:rgba(255,255,255,.08);
-      --border:rgba(255,255,255,.12);
-      --text:rgba(255,255,255,.92);
-      --muted:rgba(255,255,255,.70);
-      --shadow:0 20px 60px rgba(0,0,0,.35);
-      --ok:#22c55e; --warn:#f59e0b; --bad:#ef4444; --blue:#3b82f6;
-      --btn: rgba(255,255,255,.10);
-      --btnBorder: rgba(255,255,255,.16);
-    }
-    *{box-sizing:border-box}
-    body{
-      margin:0; min-height:100vh; color:var(--text);
-      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
-      background:
-        radial-gradient(800px 500px at 20% 10%, rgba(34,197,94,.18), transparent 60%),
-        radial-gradient(900px 600px at 90% 30%, rgba(59,130,246,.20), transparent 60%),
-        radial-gradient(700px 500px at 40% 90%, rgba(245,158,11,.16), transparent 60%),
-        var(--bg);
-      padding: 24px;
-
-      /* ✅ para footer abajo */
-      display:flex;
-      flex-direction:column;
-    }
-    /* ✅ empuja el footer al fondo cuando hay poco contenido */
-    .page{ flex: 1; }
-
-    .wrap{width:min(980px,100%); margin:0 auto}
-    .top{
-      display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;
-      margin-bottom:14px;
-    }
-    .brand{display:flex;align-items:center;gap:10px;font-weight:900;letter-spacing:.2px}
-    .dot{width:12px;height:12px;border-radius:999px;background:var(--blue);box-shadow:0 0 0 6px rgba(255,255,255,.06)}
-    .nav{display:flex;gap:10px;flex-wrap:wrap}
-    .btn{
-      display:inline-flex;align-items:center;justify-content:center;
-      padding:10px 12px;border-radius:14px;border:1px solid var(--btnBorder);
-      background:var(--btn);color:var(--text);text-decoration:none;font-weight:900;font-size:14px;
-      cursor:pointer;
-    }
-    .btnPrimary{background:rgba(255,255,255,.14);border-color:rgba(255,255,255,.22)}
-    .card{
-      background:var(--card);
-      border:1px solid var(--border);
-      border-radius:18px;
-      box-shadow:var(--shadow);
-      overflow:hidden;
-    }
-    .head{padding:18px 22px 14px;border-bottom:1px solid var(--border)}
-    h1{margin:0;font-size:20px}
-    p{margin:8px 0 0;color:var(--muted);font-size:13px;line-height:1.45}
-    .body{padding:18px 22px 20px}
-    .grid{display:grid;grid-template-columns: 1fr 1fr; gap:12px}
-    .field{
-      background:rgba(255,255,255,.05);
-      border:1px solid rgba(255,255,255,.10);
-      border-radius:14px;
-      padding:12px;
-    }
-    .label{font-size:12px;color:var(--muted);margin-bottom:6px}
-    .input{
-      width:100%;
-      border-radius:12px;
-      border:1px solid rgba(255,255,255,.14);
-      background:rgba(255,255,255,.06);
-      padding:10px 10px;
-      color:var(--text);
-      outline:none;
-      font-size:14px;
-    }
-    .hint{margin-top:8px;color:var(--muted);font-size:12px;line-height:1.4}
-    .bar{
-      margin-top:12px;
-      display:flex;gap:10px;flex-wrap:wrap;align-items:center;
-    }
-    .alert{
-      margin-top:12px;
-      border:1px solid rgba(255,255,255,.14);
-      background:rgba(255,255,255,.06);
-      padding:12px;
-      border-radius:14px;
-      font-size:13px;
-      line-height:1.45;
-    }
-    .okBox{border-color: rgba(34,197,94,.35); background: rgba(34,197,94,.10)}
-    .warnBox{border-color: rgba(245,158,11,.35); background: rgba(245,158,11,.10)}
-    @media (max-width: 820px){
-      .grid{grid-template-columns:1fr}
+    :root {
+      --red:     #d40000;
+      --red-dk:  #b80000;
+      --red-lt:  rgba(212,0,0,.08);
+      --ok:      #16a34a;
+      --ok-lt:   rgba(22,163,74,.10);
+      --ok-br:   rgba(22,163,74,.25);
+      --warn:    #b45309;
+      --warn-lt: rgba(180,83,9,.10);
+      --warn-br: rgba(180,83,9,.25);
+      --err-lt:  rgba(212,0,0,.07);
+      --err-br:  rgba(212,0,0,.22);
+      --text:    #111;
+      --muted:   #666;
+      --border:  #e4e4e4;
+      --bg:      #f4f4f4;
+      --white:   #ffffff;
     }
 
-    /* ✅ Botón ayuda (?) */
-    .headRow{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:12px;
-      flex-wrap:wrap;
-    }
-    .helpBtn{
-      width:34px;height:34px;
-      border-radius:999px;
-      display:inline-flex;align-items:center;justify-content:center;
-      border:1px solid rgba(255,255,255,.16);
-      background: rgba(255,255,255,.08);
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      min-height: 100vh;
+      background: var(--bg);
+      font-family: 'Barlow', sans-serif;
       color: var(--text);
-      cursor:pointer;
-      font-weight:950;
-      line-height:1;
-      user-select:none;
-    }
-    .helpBtn:hover{
-      background: rgba(255,255,255,.12);
-      border-color: rgba(255,255,255,.22);
+      display: flex;
+      flex-direction: column;
+      background-image:
+        radial-gradient(circle at 95% 5%, rgba(212,0,0,.06) 0%, transparent 45%),
+        radial-gradient(circle at 5% 95%, rgba(212,0,0,.04) 0%, transparent 45%);
     }
 
-    /* ✅ Modal ayuda */
-    .modalBack{
-      position:fixed;
-      inset:0;
-      background: rgba(0,0,0,.55);
-      display:none;
-      align-items:center;
-      justify-content:center;
-      padding: 18px;
-      z-index: 50;
+    body::before {
+      content: '';
+      display: block;
+      height: 5px;
+      background: var(--red);
+      flex-shrink: 0;
     }
-    .modalBack.open{display:flex;}
-    .modal{
-      width: min(640px, 100%);
-      background: rgba(15,23,42,.92);
-      border: 1px solid rgba(255,255,255,.12);
-      border-radius: 18px;
-      box-shadow: var(--shadow);
-      overflow:hidden;
-      backdrop-filter: blur(10px);
+
+    .page { flex: 1; padding: 24px 20px 32px; }
+    .wrap { width: min(820px, 100%); margin: 0 auto; }
+
+    /* Navbar */
+    .navbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 28px;
+      padding-bottom: 18px;
+      border-bottom: 1px solid var(--border);
     }
-    .modalHead{
-      padding: 16px 16px 12px;
-      border-bottom: 1px solid rgba(255,255,255,.12);
-      display:flex;
-      align-items:flex-start;
-      justify-content:space-between;
-      gap: 10px;
+
+    .brand { display: flex; align-items: center; gap: 12px; }
+
+    .brand-logo {
+      width: 44px; height: 44px;
+      object-fit: contain;
+      border-radius: 50%;
+      background: white;
+      padding: 3px;
+      box-shadow: 0 2px 10px rgba(212,0,0,.18);
     }
-    .modalTitle{margin:0;font-size:16px;font-weight:950}
-    .modalSub{margin:6px 0 0;color:var(--muted);font-size:12px;line-height:1.4}
-    .modalBody{padding: 14px 16px 16px;}
-    .xbtn{
-      border: 1px solid rgba(255,255,255,.16);
-      background: rgba(255,255,255,.08);
-      border-radius: 12px;
-      padding: 8px 10px;
-      cursor: pointer;
-      color: var(--text);
-      font-weight: 950;
-    }
-    .xbtn:hover{background: rgba(255,255,255,.12)}
-    .list{
-      margin:10px 0 0;
-      padding-left: 18px;
-      color: rgba(255,255,255,.86);
-      font-size: 13px;
-      line-height: 1.55;
-    }
-    .pill{
-      display:inline-flex;align-items:center;
-      border:1px solid rgba(255,255,255,.14);
-      background: rgba(255,255,255,.06);
-      border-radius: 999px;
-      padding: 6px 10px;
+
+    .brand-name {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 20px;
       font-weight: 900;
-      font-size: 12px;
-      margin-right: 6px;
-      margin-bottom: 6px;
+      color: var(--red);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      line-height: 1.1;
+    }
+
+    .brand-sub {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--muted);
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    .nav { display: flex; gap: 8px; flex-wrap: wrap; }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 9px 14px;
+      border-radius: 9px;
+      border: 1.5px solid var(--border);
+      background: var(--white);
+      color: var(--text);
+      text-decoration: none;
+      font-family: 'Barlow', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s;
       white-space: nowrap;
     }
-    .muted2{color: var(--muted); font-size: 12px; margin-top: 10px; line-height:1.45}
-    code{
-      background: rgba(255,255,255,.08);
-      border: 1px solid rgba(255,255,255,.12);
-      padding: 2px 6px;
+
+    .btn:hover { border-color: #bbb; background: #f9f9f9; }
+    .btn-primary { background: var(--red); border-color: var(--red); color: white; }
+    .btn-primary:hover { background: var(--red-dk); border-color: var(--red-dk); }
+    .btn-ghost { background: transparent; color: var(--muted); }
+    .btn-ghost:hover { color: var(--text); border-color: #aaa; }
+
+    /* Card */
+    .card {
+      background: var(--white);
+      border: 1.5px solid var(--border);
+      border-radius: 16px;
+      box-shadow: 0 1px 4px rgba(0,0,0,.05);
+      overflow: hidden;
+    }
+
+    .card-head {
+      padding: 20px 24px 16px;
+      border-bottom: 1.5px solid var(--border);
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .card-title {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 20px;
+      font-weight: 900;
+      color: var(--text);
+      letter-spacing: 0.3px;
+      text-transform: uppercase;
+    }
+
+    .card-sub {
+      margin-top: 5px;
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .help-btn {
+      width: 32px; height: 32px;
+      flex-shrink: 0;
+      border-radius: 50%;
+      border: 1.5px solid var(--border);
+      background: white;
+      color: var(--muted);
+      font-weight: 700;
+      font-size: 14px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: border-color 0.15s, color 0.15s;
+    }
+
+    .help-btn:hover { border-color: var(--red); color: var(--red); }
+
+    .card-body { padding: 24px; }
+
+    /* Campos */
+    .field { margin-bottom: 16px; }
+
+    .field-label {
+      display: block;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--muted);
+      letter-spacing: 0.9px;
+      text-transform: uppercase;
+      margin-bottom: 7px;
+    }
+
+    .field-input {
+      width: 100%;
+      padding: 11px 14px;
+      border: 1.5px solid var(--border);
       border-radius: 10px;
+      font-family: 'Barlow', sans-serif;
+      font-size: 14px;
+      color: var(--text);
+      background: #fafafa;
+      outline: none;
+      transition: border-color 0.15s, background 0.15s;
+    }
+
+    .field-input:focus { border-color: var(--red); background: white; }
+
+    .field-hint {
+      margin-top: 6px;
       font-size: 12px;
+      color: var(--muted);
+      line-height: 1.4;
+    }
+
+    /* Zona de archivo */
+    .file-area {
+      border: 2px dashed var(--border);
+      border-radius: 10px;
+      padding: 24px 20px;
+      text-align: center;
+      background: #fafafa;
+      transition: border-color 0.15s, background 0.15s;
+    }
+
+    .file-label {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+    }
+
+    .file-icon { width: 34px; height: 34px; fill: #bbb; }
+
+    .file-text { font-size: 13px; color: var(--muted); }
+    .file-text b { color: var(--red); cursor: pointer; }
+
+    .file-name {
+      margin-top: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--ok);
+      display: none;
+    }
+
+    .file-formats { margin-top: 6px; font-size: 11px; color: #bbb; }
+
+    #fileInput { display: none; }
+
+    /* Acciones */
+    .action-bar {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+      flex-wrap: wrap;
+    }
+
+    /* Alertas resultado */
+    .alert {
+      margin-top: 18px;
+      padding: 16px 18px;
+      border-radius: 12px;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .alert-ok   { border: 1.5px solid var(--ok-br);  background: var(--ok-lt);  color: var(--ok); }
+    .alert-warn { border: 1.5px solid var(--warn-br); background: var(--warn-lt); color: var(--warn); }
+    .alert-err  { border: 1.5px solid var(--err-br);  background: var(--err-lt);  color: var(--red); }
+
+    .alert-title { font-weight: 700; margin-bottom: 10px; }
+
+    .stats-row {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    .stat { display: flex; flex-direction: column; gap: 1px; }
+
+    .stat-val {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 26px;
+      font-weight: 900;
+      color: var(--text);
+    }
+
+    .stat-lbl {
+      font-size: 11px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* Tabla errores */
+    .err-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+      font-size: 13px;
+    }
+
+    .err-table th {
+      text-align: left;
+      padding: 8px 12px;
+      background: rgba(212,0,0,.07);
+      color: var(--red);
+      font-weight: 700;
+      font-size: 11px;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      border-bottom: 1.5px solid var(--err-br);
+    }
+
+    .err-table td {
+      padding: 8px 12px;
+      border-bottom: 1px solid #f0f0f0;
+      color: var(--text);
+      vertical-align: top;
+    }
+
+    .err-table tr:last-child td { border-bottom: none; }
+    .row-num { font-weight: 700; color: var(--red); white-space: nowrap; }
+
+    /* Modal */
+    .modal-back {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,.35);
+      display: none; align-items: center; justify-content: center;
+      padding: 18px; z-index: 50;
+    }
+
+    .modal-back.open { display: flex; }
+
+    .modal {
+      width: min(580px, 100%);
+      background: white;
+      border: 1.5px solid var(--border);
+      border-radius: 16px;
+      box-shadow: 0 20px 60px rgba(0,0,0,.14);
+      overflow: hidden;
+    }
+
+    .modal-head {
+      padding: 18px 20px 14px;
+      border-bottom: 1.5px solid var(--border);
+      display: flex; align-items: flex-start; justify-content: space-between; gap: 10px;
+      background: var(--red);
+    }
+
+    .modal-title {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 18px; font-weight: 900; color: white;
+      text-transform: uppercase; letter-spacing: 0.3px;
+    }
+
+    .modal-sub { margin-top: 3px; font-size: 12px; color: rgba(255,255,255,.75); }
+
+    .modal-close {
+      border: 1.5px solid rgba(255,255,255,.30);
+      background: rgba(255,255,255,.15);
+      border-radius: 8px; padding: 6px 10px;
+      cursor: pointer; color: white; font-weight: 700; font-size: 13px; flex-shrink: 0;
+    }
+
+    .modal-close:hover { background: rgba(255,255,255,.25); }
+
+    .modal-body { padding: 18px 20px 20px; }
+
+    .pill-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+
+    .pill {
+      display: inline-flex; align-items: center;
+      padding: 5px 12px; border-radius: 999px;
+      font-size: 12px; font-weight: 700;
+      border: 1.5px solid var(--border);
+      background: #f5f5f5; color: var(--text);
+    }
+
+    .pill.req { border-color: var(--ok-br); background: var(--ok-lt); color: var(--ok); }
+
+    .modal-list {
+      margin: 0; padding-left: 18px;
+      font-size: 13px; color: var(--text); line-height: 1.8;
+    }
+
+    .modal-note { margin-top: 10px; font-size: 12px; color: var(--muted); line-height: 1.5; }
+
+    code {
+      background: #f0f0f0; border: 1px solid #e0e0e0;
+      padding: 1px 6px; border-radius: 5px;
+      font-size: 12px; font-family: monospace;
     }
   </style>
 </head>
 <body>
-
   <div class="page">
     <div class="wrap">
-      <div class="top">
-        <div class="brand"><span class="dot"></span><span>FENATS · Importación</span></div>
+
+      <nav class="navbar">
+        <div class="brand">
+          <img class="brand-logo" src="/assets/screenshots/logo_fenats.jpeg" alt="Logo FENATS" />
+          <div>
+            <div class="brand-name">FENATS</div>
+            <div class="brand-sub">Octava Región · Importación</div>
+          </div>
+        </div>
         <div class="nav">
           <a class="btn" href="/admin">Dashboard</a>
           <a class="btn" href="/admin/members">Socios</a>
-          <a class="btn" href="/admin/logout">Salir</a>
+          <a class="btn btn-ghost" href="/admin/logout">Salir</a>
         </div>
-      </div>
+      </nav>
 
       <div class="card">
-        <div class="head">
-          <div class="headRow">
-            <div>
-              <h1>Importar planilla de socios</h1>
-              <p>
-                Sube un archivo Excel. El sistema detecta la tabla aunque no esté desde la primera celda.
-                Se crean socios nuevos o se actualizan existentes por <b>RUT</b>.
-              </p>
+        <div class="card-head">
+          <div>
+            <div class="card-title">Importar planilla de socios</div>
+            <div class="card-sub">
+              El sistema detecta la tabla aunque no parta desde la primera celda.
+              Se crean socios nuevos o se actualizan existentes por <b>RUT</b>.
+              La filial se lee de la columna <b>BASE</b> del Excel.
             </div>
-
-            <!-- ✅ Botón ayuda -->
-            <button class="helpBtn" type="button" id="openHelp" aria-label="Ver formato recomendado">?</button>
           </div>
+          <button class="help-btn" type="button" id="openHelp" aria-label="Ver formato">?</button>
         </div>
 
-        <div class="body">
+        <div class="card-body">
           <form method="post" action="/admin/upload" enctype="multipart/form-data">
-            <div class="grid">
-              <div class="field">
-                <div class="label">Filial (affiliate)</div>
-                <input class="input" name="affiliate" value="FENATS OCTAVA" />
-                <div class="hint">Ej: FENATS OCTAVA / FENATS ARAUCO / etc.</div>
-              </div>
-              <div class="field">
-                <div class="label">Fuente / referencia de importación</div>
-                <input class="input" name="importSource" value="Arauco 12/2025" />
-                <div class="hint">Ej: “Arauco 12/2025”, “Convenio Parque 01/2026”, etc.</div>
-              </div>
-            </div>
-
-            <div style="height:12px"></div>
 
             <div class="field">
-              <div class="label">Archivo Excel</div>
-              <input class="input" type="file" name="file" accept=".xlsx,.xls" required />
-              <div class="hint">Formatos soportados: .xlsx y .xls</div>
+              <label class="field-label" for="importSource">Referencia de importación (opcional)</label>
+              <input
+                class="field-input"
+                id="importSource"
+                name="importSource"
+                placeholder="Ej: Talcahuano 02/2026, Arauco 01/2026…"
+              />
+              <div class="field-hint">Se guarda como auditoría. La filial viene de la columna BASE del Excel.</div>
             </div>
 
-            <div class="bar">
-              <button class="btn btnPrimary" type="submit">Importar</button>
+            <div class="field">
+              <label class="field-label">Archivo Excel</label>
+              <div class="file-area" id="fileArea">
+                <label class="file-label" for="fileInput">
+                  <svg class="file-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6zm-1 7V3.5L18.5 9H13zM12 18l-4-4h2.5v-3h3v3H16l-4 4z"/>
+                  </svg>
+                  <div class="file-text">Arrastra tu archivo aquí o <b>selecciona</b></div>
+                </label>
+                <input id="fileInput" type="file" name="file" accept=".xlsx,.xls" style="display:none" />
+                <div class="file-name" id="fileName"></div>
+                <div class="file-formats">.xlsx y .xls soportados</div>
+              </div>
+            </div>
+
+            <div class="action-bar">
+              <button class="btn btn-primary" type="submit">Importar</button>
               <a class="btn" href="/admin/members">Ver listado</a>
             </div>
           </form>
 
+          <%
+            const hasErrors  = typeof importErrors !== 'undefined' && importErrors && importErrors.length > 0;
+            const hasSkipped = stats && stats.skipped && stats.skipped > 0;
+          %>
+
           <% if (message) { %>
-            <div class="alert <%= (stats && stats.skipped && stats.skipped > 0) ? 'warnBox' : 'okBox' %>">
-              <div><b><%= message %></b></div>
+            <div class="alert <%= (hasErrors || hasSkipped) ? 'alert-warn' : 'alert-ok' %>">
+              <div class="alert-title"><%= message %></div>
               <% if (stats) { %>
-                <div style="margin-top:8px">
-                  Filas detectadas: <b><%= stats.totalRows %></b> ·
-                  Creados: <b><%= stats.created %></b> ·
-                  Actualizados: <b><%= stats.updated %></b>
+                <div class="stats-row">
+                  <div class="stat">
+                    <span class="stat-val"><%= stats.totalRows %></span>
+                    <span class="stat-lbl">Detectadas</span>
+                  </div>
+                  <div class="stat">
+                    <span class="stat-val"><%= stats.created %></span>
+                    <span class="stat-lbl">Creados</span>
+                  </div>
+                  <div class="stat">
+                    <span class="stat-val"><%= stats.updated %></span>
+                    <span class="stat-lbl">Actualizados</span>
+                  </div>
                   <% if (typeof stats.skipped !== "undefined") { %>
-                    · Omitidos: <b><%= stats.skipped %></b>
+                  <div class="stat">
+                    <span class="stat-val"><%= stats.skipped %></span>
+                    <span class="stat-lbl">Omitidos</span>
+                  </div>
                   <% } %>
                 </div>
               <% } %>
+            </div>
+          <% } %>
+
+          <% if (hasErrors) { %>
+            <div class="alert alert-err" style="margin-top:12px">
+              <div class="alert-title">Filas con errores (<%= importErrors.length %>) — corrige el Excel antes de reimportar</div>
+              <table class="err-table">
+                <thead>
+                  <tr>
+                    <th style="width:90px">Fila Excel</th>
+                    <th>Motivo</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% importErrors.forEach(function(e) { %>
+                    <tr>
+                      <td class="row-num">#<%= e.rowNum %></td>
+                      <td><%= e.reason %></td>
+                    </tr>
+                  <% }); %>
+                </tbody>
+              </table>
             </div>
           <% } %>
 
@@ -272,73 +515,127 @@
       </div>
     </div>
 
-    <!-- ✅ Modal ayuda formato Excel -->
-    <div id="helpBack" class="modalBack" aria-hidden="true">
+    <!-- Modal ayuda -->
+    <div id="helpBack" class="modal-back" aria-hidden="true">
       <div class="modal" role="dialog" aria-modal="true" aria-labelledby="hTitle">
-        <div class="modalHead">
+        <div class="modal-head">
           <div>
-            <h2 id="hTitle" class="modalTitle">Formato recomendado de Excel</h2>
-            <div class="modalSub">
-              El sistema busca una fila de encabezados y luego lee hacia abajo.
-            </div>
+            <div id="hTitle" class="modal-title">Formato recomendado de Excel</div>
+            <div class="modal-sub">El sistema detecta los encabezados automáticamente.</div>
           </div>
-          <button class="xbtn" type="button" id="closeHelp">✕</button>
+          <button class="modal-close" type="button" id="closeHelp">✕</button>
         </div>
-
-        <div class="modalBody">
-          <div style="margin-bottom:10px">
-            <span class="pill">✅ Requerido: RUT + DV</span>
-            <span class="pill">✅ Requerido: NOMBRE</span>
-            <span class="pill">Opcional: GENERO</span>
+        <div class="modal-body">
+          <div class="pill-row">
+            <span class="pill req">✓ NOMBRE</span>
+            <span class="pill req">✓ RUT (con DV)</span>
+            <span class="pill req">✓ BASE</span>
+            <span class="pill">GENERO (opcional)</span>
           </div>
-
-          <ul class="list">
-            <li>Encabezados aceptados:</li>
+          <ul class="modal-list">
+            <li><code>NOMBRE</code> — nombre completo del socio. Obligatorio.</li>
+            <li><code>RUT</code> — con DV incluido (<code>15503294-4</code>) o columnas separadas <code>RUT</code> + <code>DV</code>.</li>
+            <li><code>BASE</code> — filial del socio (ej: "FENATS Dirección S.S.Talcahuano"). Obligatorio.</li>
+            <li><code>GENERO</code> — opcional (FEMENINO / MASCULINO).</li>
           </ul>
-          <ul class="list">
-            <li><code>RUT</code> y <code>DV</code> en columnas separadas, o <code>RUT DV</code> en una sola columna.</li>
-            <li><code>NOMBRE</code> debe existir (si está vacío, la fila no se importa).</li>
-            <li><code>GENERO</code> es opcional (ej: FEMENINO / MASCULINO).</li>
-          </ul>
-
-          <div class="muted2">
-            <b>RUT:</b> puede venir con puntos y guión (<code>12.345.678-9</code>) o sin ellos.
-            El sistema lo detecta automáticamente.
-          </div>
-
-          <div class="muted2">
-            Tip: Evita tablas dinámicas dentro de la misma hoja. Si tu archivo tiene “resúmenes” abajo,
-            ideal dejar la tabla principal arriba (o en una hoja aparte).
-          </div>
+          <div class="modal-note">Los encabezados se detectan sin importar mayúsculas/minúsculas. La tabla puede empezar en cualquier fila.</div>
+          <div class="modal-note">Si una fila no tiene BASE, RUT o Nombre, se omite y aparece en la tabla de errores.</div>
         </div>
       </div>
     </div>
   </div>
 
   <script>
-    const helpBack = document.getElementById("helpBack");
-    const openHelp = document.getElementById("openHelp");
+    const helpBack  = document.getElementById("helpBack");
+    const openHelp  = document.getElementById("openHelp");
     const closeHelp = document.getElementById("closeHelp");
 
-    function showHelp(){
-      helpBack.classList.add("open");
-      helpBack.setAttribute("aria-hidden", "false");
-    }
-    function hideHelp(){
-      helpBack.classList.remove("open");
-      helpBack.setAttribute("aria-hidden", "true");
-    }
+    function showHelp(){ helpBack.classList.add("open"); helpBack.setAttribute("aria-hidden","false"); }
+    function hideHelp(){ helpBack.classList.remove("open"); helpBack.setAttribute("aria-hidden","true"); }
 
     openHelp.addEventListener("click", showHelp);
     closeHelp.addEventListener("click", hideHelp);
+    helpBack.addEventListener("click", (e) => { if (e.target === helpBack) hideHelp(); });
+    document.addEventListener("keydown", (e) => { if (e.key === "Escape" && helpBack.classList.contains("open")) hideHelp(); });
 
-    helpBack.addEventListener("click", (e) => {
-      if (e.target === helpBack) hideHelp();
+    // Mostrar nombre archivo seleccionado
+    const fileInput = document.getElementById("fileInput");
+    const fileName  = document.getElementById("fileName");
+    const fileArea  = document.getElementById("fileArea");
+
+    function updateFileDisplay(file) {
+      console.log("📁 Archivo detectado:", file.name);
+      fileName.textContent = "✓ " + file.name;
+      fileName.style.display = "block";
+      fileName.style.color = "#16a34a";
+      fileArea.style.borderColor = "#16a34a";
+      fileArea.style.background  = "rgba(22,163,74,.06)";
+    }
+
+    function resetFileDisplay() {
+      fileArea.style.borderColor = "var(--border)";
+      fileArea.style.background  = "#fafafa";
+    }
+
+    // Hacer click en el área para abrir selector
+    fileArea.addEventListener("click", (e) => {
+      if (e.target !== fileInput && !e.target.closest("input")) {
+        fileInput.click();
+      }
     });
 
-    document.addEventListener("keydown", (e) => {
-      if (e.key === "Escape" && helpBack.classList.contains("open")) hideHelp();
+    // Selección de archivo por input
+    fileInput.addEventListener("change", (e) => {
+      console.log("Input cambió, files:", fileInput.files.length);
+      if (fileInput.files && fileInput.files[0]) {
+        updateFileDisplay(fileInput.files[0]);
+      }
     });
+
+    // Drag and drop
+    fileArea.addEventListener("dragover", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      fileArea.style.borderColor = "#16a34a";
+      fileArea.style.background  = "rgba(22,163,74,.12)";
+    });
+
+    fileArea.addEventListener("dragleave", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      if (e.target === fileArea) {
+        resetFileDisplay();
+      }
+    });
+
+    fileArea.addEventListener("drop", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      console.log("Drop detectado, files:", e.dataTransfer.files.length);
+      
+      const files = e.dataTransfer.files;
+      if (files.length > 0) {
+        // Usar DataTransfer para asignar los archivos al input
+        const dt = new DataTransfer();
+        dt.items.add(files[0]);
+        fileInput.files = dt.files;
+        updateFileDisplay(files[0]);
+      }
+      resetFileDisplay();
+    });
+
+    // Validación manual antes del submit (evita problema de required en input oculto)
+const form = document.querySelector("form");
+form.addEventListener("submit", (e) => {
+  if (!fileInput.files || fileInput.files.length === 0) {
+    e.preventDefault();
+    fileArea.style.borderColor = "#d40000";
+    fileArea.style.background  = "rgba(212,0,0,.06)";
+    fileName.textContent = "⚠ Debes seleccionar un archivo Excel";
+    fileName.style.display = "block";
+    fileName.style.color = "#d40000";
+  }
+});
   </script>
 
   <%- include("../partials/footer") %>

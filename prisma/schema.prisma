@@ -39,7 +39,7 @@ model Member {
 
   // Auditoría de importación
   lastImportAt DateTime? // 
-  importSource String? // (ej: "FENATS OCTAVA ARAUCO 12/2025")
+  importSource String? // (ej: "FENATS OCTAVA ARAUCO 03/2026")
 
   @@index([token])
   @@index([status])
@@ -79,4 +79,36 @@ model AdminOtp {
   user AdminUser @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
+}
+
+model Post {
+  id          Int      @id @default(autoincrement())
+  title       String
+  content     String
+  imageUrl    String?
+  category    String   @default("General")
+  published   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([published])
+}
+
+model Photo {
+  id          Int      @id @default(autoincrement())
+  imageUrl    String
+  caption     String?
+  createdAt   DateTime @default(now())
+}
+
+model Convenio {
+  id        Int      @id @default(autoincrement())
+  name      String
+  address   String
+  phone     String
+  logoUrl   String?
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  @@index([active])
 }

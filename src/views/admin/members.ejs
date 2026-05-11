@@ -3,144 +3,354 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>FENATS · Admin · Socios</title>
+  <title>FENATS · Gestión de Socios</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@700;900&display=swap" rel="stylesheet" />
   <style>
-    :root{
-      --bg:#0b1220;
-      --card:rgba(255,255,255,.08);
-      --border:rgba(255,255,255,.12);
-      --text:rgba(255,255,255,.92);
-      --muted:rgba(255,255,255,.70);
-      --shadow:0 20px 60px rgba(0,0,0,.35);
-      --ok:#22c55e; --warn:#f59e0b; --bad:#ef4444; --blue:#3b82f6;
-      --btn: rgba(255,255,255,.10);
-      --btnBorder: rgba(255,255,255,.16);
-    }
-    *{box-sizing:border-box}
-    body{
-      margin:0; min-height:100vh; color:var(--text);
-      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
-      background:
-        radial-gradient(800px 500px at 20% 10%, rgba(34,197,94,.18), transparent 60%),
-        radial-gradient(900px 600px at 90% 30%, rgba(59,130,246,.20), transparent 60%),
-        radial-gradient(700px 500px at 40% 90%, rgba(245,158,11,.16), transparent 60%),
-        var(--bg);
-      padding: 24px;
-
-      /* ✅ para footer abajo */
-      display:flex;
-      flex-direction:column;
+    :root {
+      --red:     #d40000;
+      --red-dk:  #b80000;
+      --red-lt:  rgba(212,0,0,.08);
+      --ok:      #16a34a;
+      --ok-lt:   rgba(22,163,74,.10);
+      --ok-br:   rgba(22,163,74,.30);
+      --warn:    #b45309;
+      --warn-lt: rgba(180,83,9,.10);
+      --warn-br: rgba(180,83,9,.30);
+      --text:    #111;
+      --muted:   #666;
+      --border:  #e4e4e4;
+      --bg:      #f4f4f4;
+      --white:   #ffffff;
     }
 
-    /* ✅ empuja footer al fondo */
-    .page{flex:1}
+    * { box-sizing: border-box; margin: 0; padding: 0; }
 
-    .wrap{width:min(1150px,100%); margin:0 auto}
-    .top{
-      display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;
-      margin-bottom:14px;
-    }
-    .brand{display:flex;align-items:center;gap:10px;font-weight:900;letter-spacing:.2px}
-    .dot{width:12px;height:12px;border-radius:999px;background:var(--blue);box-shadow:0 0 0 6px rgba(255,255,255,.06)}
-    .nav{display:flex;gap:10px;flex-wrap:wrap}
-    .btn{
-      display:inline-flex;align-items:center;justify-content:center;
-      padding:10px 12px;border-radius:14px;border:1px solid var(--btnBorder);
-      background:var(--btn);color:var(--text);text-decoration:none;font-weight:900;font-size:14px;
-      cursor:pointer;
-    }
-    .btnPrimary{background:rgba(255,255,255,.14);border-color:rgba(255,255,255,.22)}
-    .card{
-      background:var(--card);
-      border:1px solid var(--border);
-      border-radius:18px;
-      box-shadow:var(--shadow);
-      overflow:hidden;
-    }
-    .head{padding:18px 22px 14px;border-bottom:1px solid var(--border)}
-    h1{margin:0;font-size:20px}
-    p{margin:8px 0 0;color:var(--muted);font-size:13px;line-height:1.45}
-    .body{padding:16px 22px 20px}
-    .search{
-      display:flex; gap:10px; flex-wrap:wrap; align-items:center;
-      margin-bottom: 12px;
-    }
-    .input{
-      flex:1;
-      min-width: 240px;
-      border-radius:14px;
-      border:1px solid rgba(255,255,255,.14);
-      background:rgba(255,255,255,.06);
-      padding:10px 12px;
-      color:var(--text);
-      outline:none;
-      font-size:14px;
-    }
-    .hint{color:var(--muted);font-size:12px;margin-top:6px;line-height:1.4}
-
-    /* ✅ Mobile scroll wrapper */
-    .tableScroll{
-      overflow-x:auto;
-      -webkit-overflow-scrolling: touch;
-      padding-bottom: 6px;
-    }
-    /* ✅ Force table to be wider so scroll appears */
-    .tableMin{
-      min-width: 980px;
+    body {
+      min-height: 100vh;
+      background: var(--bg);
+      font-family: 'Barlow', sans-serif;
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      background-image:
+        radial-gradient(circle at 95% 5%, rgba(212,0,0,.06) 0%, transparent 45%),
+        radial-gradient(circle at 5% 95%, rgba(212,0,0,.04) 0%, transparent 45%);
     }
 
-    table{width:100%;border-collapse:separate;border-spacing:0 10px}
-    th{
-      text-align:left;
-      color:rgba(255,255,255,.70);
-      font-size:12px;
-      font-weight:900;
-      padding: 0 10px;
+    body::before {
+      content: '';
+      display: block;
+      height: 5px;
+      background: var(--red);
+      flex-shrink: 0;
+    }
+
+    .page { flex: 1; padding: 24px 20px 32px; }
+    .wrap { width: min(1200px, 100%); margin: 0 auto; }
+
+    /* ── Navbar ── */
+    .navbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 28px;
+      padding-bottom: 18px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .brand { display: flex; align-items: center; gap: 12px; }
+
+    .brand-logo {
+      width: 44px; height: 44px;
+      object-fit: contain;
+      border-radius: 50%;
+      background: white;
+      padding: 3px;
+      box-shadow: 0 2px 10px rgba(212,0,0,.18);
+    }
+
+    .brand-name {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 20px;
+      font-weight: 900;
+      color: var(--red);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      line-height: 1.1;
+    }
+
+    .brand-sub {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--muted);
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    .nav { display: flex; gap: 8px; flex-wrap: wrap; }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 9px 14px;
+      border-radius: 9px;
+      border: 1.5px solid var(--border);
+      background: var(--white);
+      color: var(--text);
+      text-decoration: none;
+      font-family: 'Barlow', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s;
       white-space: nowrap;
     }
-    td{
-      padding: 12px 10px;
-      background: rgba(255,255,255,.05);
-      border-top: 1px solid rgba(255,255,255,.10);
-      border-bottom: 1px solid rgba(255,255,255,.10);
+
+    .btn:hover     { border-color: #bbb; background: #f9f9f9; }
+    .btn-primary   { background: var(--red); border-color: var(--red); color: white; }
+    .btn-primary:hover { background: var(--red-dk); border-color: var(--red-dk); }
+    .btn-ghost     { background: transparent; color: var(--muted); }
+    .btn-ghost:hover { color: var(--text); border-color: #aaa; }
+
+    /* Botones mini de tabla */
+    .btn-sm {
+      padding: 6px 10px;
+      font-size: 12px;
+      border-radius: 7px;
+      border: 1.5px solid var(--border);
+      background: var(--white);
+      color: var(--text);
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      transition: border-color 0.12s, background 0.12s;
+    }
+
+    .btn-sm:hover       { border-color: #bbb; background: #f5f5f5; }
+    .btn-sm-red         { background: var(--red-lt); border-color: rgba(212,0,0,.25); color: var(--red); }
+    .btn-sm-red:hover   { background: rgba(212,0,0,.14); }
+    .btn-sm-green       { background: var(--ok-lt); border-color: var(--ok-br); color: var(--ok); }
+    .btn-sm-green:hover { background: rgba(22,163,74,.18); }
+
+    /* ── Card ── */
+    .card {
+      background: var(--white);
+      border: 1.5px solid var(--border);
+      border-radius: 16px;
+      box-shadow: 0 1px 4px rgba(0,0,0,.05);
+      overflow: hidden;
+    }
+
+    .card-head {
+      padding: 18px 24px 16px;
+      border-bottom: 1.5px solid var(--border);
+    }
+
+    .card-title {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 20px;
+      font-weight: 900;
+      color: var(--text);
+      letter-spacing: 0.3px;
+      text-transform: uppercase;
+    }
+
+    .card-sub {
+      margin-top: 4px;
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.45;
+    }
+
+    .card-body { padding: 18px 24px 24px; }
+
+    /* ── Buscador ── */
+    .search-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .search-input {
+      flex: 1;
+      min-width: 240px;
+      padding: 10px 14px;
+      border: 1.5px solid var(--border);
+      border-radius: 9px;
+      font-family: 'Barlow', sans-serif;
       font-size: 14px;
+      color: var(--text);
+      background: #fafafa;
+      outline: none;
+      transition: border-color 0.15s, background 0.15s;
+    }
+
+    .search-input:focus { border-color: var(--red); background: white; }
+
+    .search-hint {
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 16px;
+      line-height: 1.4;
+    }
+
+    /* ── Tabla ── */
+    .table-scroll {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      border-radius: 10px;
+      border: 1.5px solid var(--border);
+    }
+
+    table {
+      width: 100%;
+      min-width: 980px;
+      border-collapse: collapse;
+    }
+
+    thead {
+      background: #f8f8f8;
+      border-bottom: 1.5px solid var(--border);
+    }
+
+    th {
+      text-align: left;
+      padding: 11px 14px;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--muted);
+      letter-spacing: 0.7px;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    tbody tr {
+      border-bottom: 1px solid var(--border);
+      transition: background 0.1s;
+    }
+
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:hover { background: #fafafa; }
+
+    td {
+      padding: 13px 14px;
+      font-size: 13px;
       vertical-align: middle;
     }
-    td:first-child{
-      border-left: 1px solid rgba(255,255,255,.10);
-      border-top-left-radius: 14px;
-      border-bottom-left-radius: 14px;
+
+    .td-id {
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 600;
+      width: 50px;
     }
-    td:last-child{
-      border-right: 1px solid rgba(255,255,255,.10);
-      border-top-right-radius: 14px;
-      border-bottom-right-radius: 14px;
+
+    .td-name-main {
+      font-weight: 700;
+      font-size: 13px;
+      color: var(--text);
+      line-height: 1.2;
     }
-    .muted{color:var(--muted)}
-    .badge{
-      display:inline-flex;align-items:center;gap:8px;
-      padding:8px 10px;border-radius:999px;
-      border:1px solid rgba(255,255,255,.14);
-      background:rgba(255,255,255,.06);
-      font-size:12px;font-weight:950;
-      white-space:nowrap;
+
+    .td-name-sub {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 2px;
     }
-    .bDot{width:8px;height:8px;border-radius:999px}
-    .ok{background:var(--ok)} .warn{background:var(--warn)}
-    .actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
-    .mini{
-      padding:9px 10px;
-      border-radius:12px;
-      font-size:12px;
-      width:auto;
+
+    .td-rut-main {
+      font-weight: 700;
+      font-size: 13px;
+    }
+
+    .td-rut-sub {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .td-base {
+      font-size: 12px;
+      color: var(--muted);
+      max-width: 160px;
+      line-height: 1.3;
+    }
+
+    /* Badge estado */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 10px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.4px;
       white-space: nowrap;
     }
-    .link{color:rgba(255,255,255,.92)}
-    code{color:rgba(255,255,255,.88); white-space: nowrap;}
 
-    /* ✅ Ya NO escondemos columnas: ahora se hace scroll horizontal */
-    @media (max-width: 980px){
-      .wrap{width:min(980px,100%)}
+    .badge-active   { background: var(--ok-lt);   color: var(--ok);   border: 1.5px solid var(--ok-br); }
+    .badge-inactive { background: var(--warn-lt);  color: var(--warn); border: 1.5px solid var(--warn-br); }
+
+    .badge-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+    }
+
+    .badge-active   .badge-dot { background: var(--ok); }
+    .badge-inactive .badge-dot { background: var(--warn); }
+
+    /* Links */
+    .td-links a {
+      display: block;
+      font-size: 12px;
+      color: var(--red);
+      text-decoration: none;
+      font-weight: 600;
+      line-height: 1.8;
+      transition: opacity 0.1s;
+    }
+
+    .td-links a:hover { opacity: 0.75; text-decoration: underline; }
+
+    /* Token */
+    .td-token {
+      font-family: monospace;
+      font-size: 11px;
+      color: var(--muted);
+      white-space: nowrap;
+      max-width: 220px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* Acciones */
+    .td-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      align-items: flex-end;
+    }
+
+    .scroll-hint {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 10px;
+      text-align: center;
+    }
+
+    @media (min-width: 980px) {
+      .scroll-hint { display: none; }
     }
   </style>
 </head>
@@ -149,52 +359,64 @@
 
   <div class="page">
     <div class="wrap">
-      <div class="top">
-        <div class="brand"><span class="dot"></span><span>FENATS · Socios</span></div>
+
+      <!-- Navbar -->
+      <nav class="navbar">
+        <div class="brand">
+          <img class="brand-logo" src="/assets/screenshots/logo_fenats.jpeg" alt="Logo FENATS" />
+          <div>
+            <div class="brand-name">FENATS</div>
+            <div class="brand-sub">Octava Región · Socios</div>
+          </div>
+        </div>
         <div class="nav">
           <a class="btn" href="/admin">Panel</a>
-
           <% if (canEdit) { %>
-            <a class="btn btnPrimary" href="/admin/new">Agregar socio</a>
+            <a class="btn btn-primary" href="/admin/new">Agregar socio</a>
             <a class="btn" href="/admin/upload">Importar Excel</a>
           <% } %>
-
-          <a class="btn" href="/admin/logout">Salir</a>
+          <a class="btn btn-ghost" href="/admin/logout">Salir</a>
         </div>
-      </div>
+      </nav>
 
+      <!-- Card -->
       <div class="card">
-        <div class="head">
-          <h1>Gestión de socios</h1>
-          <p>
+        <div class="card-head">
+          <div class="card-title">Gestión de socios</div>
+          <div class="card-sub">
             Busca por RUT, nombre o token.
             <% if (canEdit) { %>
               Desde aquí puedes activar/inactivar, regenerar token y descargar QR.
             <% } else { %>
               Acceso de solo lectura: puedes ver socios y descargar QR.
             <% } %>
-          </p>
+          </div>
         </div>
-        <div class="body">
-          <form class="search" method="get" action="/admin/members">
-            <input class="input" name="q" value="<%= q %>" placeholder="Ej: 9.313.137-1, Juan Pérez, o token..." />
-            <button class="btn btnPrimary" type="submit">Buscar</button>
+
+        <div class="card-body">
+
+          <!-- Buscador -->
+          <form class="search-row" method="get" action="/admin/members">
+            <input
+              class="search-input"
+              name="q"
+              value="<%= q %>"
+              placeholder="Ej: 9.313.137-1, Juan Pérez, o token…"
+            />
+            <button class="btn btn-primary" type="submit">Buscar</button>
             <a class="btn" href="/admin/members">Limpiar</a>
           </form>
-          <div class="hint">
-            Consejo: Puedes ingresar un RUT con o sin puntos. El sistema lo detecta.
-          </div>
+          <div class="search-hint">Puedes ingresar un RUT con o sin puntos. El sistema lo detecta automáticamente.</div>
 
-          <div style="height:12px"></div>
-
-          <div class="tableScroll">
-            <table class="tableMin">
+          <!-- Tabla -->
+          <div class="table-scroll">
+            <table>
               <thead>
                 <tr>
                   <th>ID</th>
                   <th>Nombre</th>
                   <th>RUT</th>
-                  <th>Filial</th>
+                  <th>Base</th>
                   <th>Estado</th>
                   <th>Links</th>
                   <th>Token</th>
@@ -202,50 +424,61 @@
                 </tr>
               </thead>
               <tbody>
-                <% members.forEach(m => { %>
+                <% members.forEach(function(m) { %>
                   <tr>
-                    <td class="muted"><%= m.id %></td>
+                    <td class="td-id"><%= m.id %></td>
 
                     <td>
-                      <div style="font-weight:900"><%= m.fullName %></div>
-                      <div class="muted" style="font-size:12px">
+                      <div class="td-name-main"><%= m.fullName %></div>
+                      <div class="td-name-sub">
                         Actualizado: <%= new Date(m.updatedAt).toLocaleString("es-CL") %>
                       </div>
                     </td>
 
                     <td>
-                      <div style="font-weight:900"><%= m.rutMasked %></div>
-                      <div class="muted" style="font-size:12px">Normalizado: <%= m.rut %></div>
+                      <div class="td-rut-main"><%= m.rutMasked %></div>
+                      <div class="td-rut-sub">Normalizado: <%= m.rut %></div>
                     </td>
 
-                    <td class="muted"><%= m.affiliate || "-" %></td>
+                    <td class="td-base"><%= m.affiliate || "-" %></td>
 
                     <td>
                       <% if (m.status === "ACTIVE") { %>
-                        <span class="badge"><span class="bDot ok"></span>VIGENTE</span>
+                        <span class="badge badge-active">
+                          <span class="badge-dot"></span>Vigente
+                        </span>
                       <% } else { %>
-                        <span class="badge"><span class="bDot warn"></span>NO VIGENTE</span>
+                        <span class="badge badge-inactive">
+                          <span class="badge-dot"></span>No vigente
+                        </span>
                       <% } %>
                     </td>
 
-                    <td>
-                      <div><a class="link" href="/s/<%= m.token %>" target="_blank" rel="noreferrer">Validación</a></div>
-                      <div><a class="link" href="/credencial/<%= m.token %>" target="_blank" rel="noreferrer">Credencial</a></div>
+                    <td class="td-links">
+                      <a href="/s/<%= m.token %>" target="_blank" rel="noreferrer">Validación</a>
+                      <a href="/credencial/<%= m.token %>" target="_blank" rel="noreferrer">Credencial</a>
                     </td>
 
-                    <td><code><%= m.token %></code></td>
+                    <td>
+                      <div class="td-token" title="<%= m.token %>"><%= m.token %></div>
+                    </td>
 
                     <td>
-                      <div class="actions">
-                        <a class="btn mini" href="/qr/<%= m.token %>.png" target="_blank" rel="noreferrer">Descargar QR</a>
+                      <div class="td-actions">
+                        <a class="btn-sm" href="/qr/<%= m.token %>.png" target="_blank" rel="noreferrer">Descargar QR</a>
 
                         <% if (canEdit) { %>
-                          <form method="post" action="/admin/members/<%= m.id %>/toggle" style="display:inline">
-                            <button class="btn mini" type="submit"><%= m.status === "ACTIVE" ? "Inactivar" : "Activar" %></button>
+                          <form method="post" action="/admin/members/<%= m.id %>/toggle">
+                            <button
+                              class="btn-sm <%= m.status === 'ACTIVE' ? 'btn-sm-red' : 'btn-sm-green' %>"
+                              type="submit"
+                            >
+                              <%= m.status === "ACTIVE" ? "Inactivar" : "Activar" %>
+                            </button>
                           </form>
 
-                          <form method="post" action="/admin/members/<%= m.id %>/regen-token" style="display:inline">
-                            <button class="btn mini" type="submit">Renovar token</button>
+                          <form method="post" action="/admin/members/<%= m.id %>/regen-token">
+                            <button class="btn-sm" type="submit">Renovar token</button>
                           </form>
                         <% } %>
                       </div>
@@ -256,9 +489,8 @@
             </table>
           </div>
 
-          <div class="hint" style="margin-top:8px">
-            En móvil: desliza horizontalmente para ver todas las columnas.
-          </div>
+          <div class="scroll-hint">En móvil: desliza horizontalmente para ver todas las columnas.</div>
+
         </div>
       </div>
     </div>

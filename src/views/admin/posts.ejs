@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>FENATS · Noticias</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@700;900&display=swap" rel="stylesheet" />
+  <style>
+    :root{--red:#d40000;--red-dk:#b80000;--red-lt:rgba(212,0,0,.08);--red-br:rgba(212,0,0,.22);--ok:#16a34a;--ok-lt:rgba(22,163,74,.10);--ok-br:rgba(22,163,74,.28);--warn:#b45309;--warn-lt:rgba(180,83,9,.10);--warn-br:rgba(180,83,9,.28);--text:#111;--muted:#666;--border:#e4e4e4;--bg:#f4f4f4;--white:#ffffff;}
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{min-height:100vh;background:var(--bg);font-family:'Barlow',sans-serif;color:var(--text);display:flex;flex-direction:column;background-image:radial-gradient(circle at 95% 5%,rgba(212,0,0,.06) 0%,transparent 45%),radial-gradient(circle at 5% 95%,rgba(212,0,0,.04) 0%,transparent 45%);}
+    body::before{content:'';display:block;height:5px;background:var(--red);flex-shrink:0;}
+    .page{flex:1;padding:24px 20px 32px;}
+    .wrap{width:min(1100px,100%);margin:0 auto;}
+    .navbar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:28px;padding-bottom:18px;border-bottom:1px solid var(--border);}
+    .brand{display:flex;align-items:center;gap:12px;}
+    .brand-logo{width:44px;height:44px;object-fit:contain;border-radius:50%;background:white;padding:3px;box-shadow:0 2px 10px rgba(212,0,0,.18);}
+    .brand-name{font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:900;color:var(--red);letter-spacing:1px;text-transform:uppercase;line-height:1.1;}
+    .brand-sub{font-size:11px;font-weight:600;color:var(--muted);letter-spacing:.5px;text-transform:uppercase;}
+    .nav{display:flex;gap:8px;flex-wrap:wrap;}
+    .btn{display:inline-flex;align-items:center;justify-content:center;padding:9px 14px;border-radius:9px;border:1.5px solid var(--border);background:var(--white);color:var(--text);text-decoration:none;font-family:'Barlow',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:border-color .15s,background .15s;white-space:nowrap;}
+    .btn:hover{border-color:#bbb;background:#f9f9f9;}
+    .btn-primary{background:var(--red);border-color:var(--red);color:white;}
+    .btn-primary:hover{background:var(--red-dk);border-color:var(--red-dk);}
+    .btn-ghost{background:transparent;color:var(--muted);}
+    .btn-ghost:hover{color:var(--text);border-color:#aaa;}
+    .btn-sm{padding:6px 10px;font-size:12px;border-radius:7px;}
+    .btn-sm-red{background:var(--red-lt);border-color:var(--red-br);color:var(--red);}
+    .btn-sm-green{background:var(--ok-lt);border-color:var(--ok-br);color:var(--ok);}
+    .card{background:var(--white);border:1.5px solid var(--border);border-radius:16px;box-shadow:0 1px 4px rgba(0,0,0,.05);overflow:hidden;}
+    .card-head{padding:18px 24px 16px;border-bottom:1.5px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:12px;}
+    .card-title{font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:900;color:var(--text);letter-spacing:.3px;text-transform:uppercase;}
+    .card-sub{font-size:13px;color:var(--muted);margin-top:4px;}
+    .card-body{padding:20px 24px;}
+    .alert{padding:11px 14px;border-radius:10px;font-size:13px;font-weight:600;margin-bottom:14px;}
+    .alert-err{border:1.5px solid var(--red-br);background:var(--red-lt);color:var(--red);}
+    .alert-ok{border:1.5px solid var(--ok-br);background:var(--ok-lt);color:var(--ok);}
+    .posts-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px;}
+    .post-card{background:var(--white);border:1.5px solid var(--border);border-radius:12px;overflow:hidden;}
+    .post-img{height:140px;background:#f0f0f0;object-fit:cover;width:100%;display:block;}
+    .post-img-ph{height:140px;background:#f0f0f0;display:flex;align-items:center;justify-content:center;}
+    .post-img-ph-icon{width:40px;height:40px;border-radius:8px;background:#e0e0e0;}
+    .post-body{padding:14px;}
+    .post-category{font-size:11px;font-weight:700;color:var(--red);letter-spacing:.5px;text-transform:uppercase;margin-bottom:6px;}
+    .post-title{font-size:15px;font-weight:700;color:var(--text);line-height:1.3;margin-bottom:6px;}
+    .post-content{font-size:12px;color:var(--muted);line-height:1.5;margin-bottom:10px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;}
+    .post-date{font-size:11px;color:#aaa;margin-bottom:10px;}
+    .post-actions{display:flex;gap:6px;flex-wrap:wrap;}
+    .badge-pub{display:inline-flex;align-items:center;gap:5px;padding:4px 9px;border-radius:999px;font-size:11px;font-weight:700;}
+    .badge-pub.yes{background:var(--ok-lt);color:var(--ok);border:1.5px solid var(--ok-br);}
+    .badge-pub.no{background:#f0f0f0;color:#888;border:1.5px solid #e0e0e0;}
+    .empty{text-align:center;padding:40px 20px;color:var(--muted);font-size:14px;}
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="wrap">
+      <nav class="navbar">
+        <div class="brand">
+          <img class="brand-logo" src="/assets/screenshots/logo_fenats.jpeg" alt="Logo FENATS" />
+          <div>
+            <div class="brand-name">FENATS</div>
+            <div class="brand-sub">Octava Región · Noticias</div>
+          </div>
+        </div>
+        <div class="nav">
+          <a class="btn" href="/admin">Panel</a>
+          <a class="btn btn-primary" href="/admin/posts/new">Nueva noticia</a>
+          <a class="btn" href="/admin/photos">Galería</a>
+          <a class="btn btn-ghost" href="/admin/logout">Salir</a>
+        </div>
+      </nav>
+
+      <div class="card">
+        <div class="card-head">
+          <div>
+            <div class="card-title">Gestión de noticias</div>
+            <div class="card-sub">Crea y administra las noticias que aparecen en la página principal.</div>
+          </div>
+          <a class="btn btn-primary" href="/admin/posts/new">Nueva noticia</a>
+        </div>
+        <div class="card-body">
+          <% if (error) { %><div class="alert alert-err"><%= error %></div><% } %>
+          <% if (message) { %><div class="alert alert-ok"><%= message %></div><% } %>
+
+          <% if (!posts || posts.length === 0) { %>
+            <div class="empty">No hay noticias aún. Crea la primera con el botón "Nueva noticia".</div>
+          <% } else { %>
+            <div class="posts-grid">
+              <% posts.forEach(function(p) { %>
+                <div class="post-card">
+                  <% if (p.imageUrl) { %>
+                    <img class="post-img" src="<%= p.imageUrl %>" alt="<%= p.title %>" />
+                  <% } else { %>
+                    <div class="post-img-ph"><div class="post-img-ph-icon"></div></div>
+                  <% } %>
+                  <div class="post-body">
+                    <div class="post-category"><%= p.category %></div>
+                    <div class="post-title"><%= p.title %></div>
+                    <div class="post-content"><%= p.content %></div>
+                    <div class="post-date"><%= new Date(p.createdAt).toLocaleDateString("es-CL") %></div>
+                    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;">
+                      <span class="badge-pub <%= p.published ? 'yes' : 'no' %>">
+                        <%= p.published ? 'Publicado' : 'Borrador' %>
+                      </span>
+                      <div class="post-actions">
+                        <form method="post" action="/admin/posts/<%= p.id %>/toggle">
+                          <button class="btn btn-sm <%= p.published ? 'btn-sm-red' : 'btn-sm-green' %>" type="submit">
+                            <%= p.published ? 'Despublicar' : 'Publicar' %>
+                          </button>
+                        </form>
+                        <a href="/admin/posts/<%= p.id %>/edit" class="btn btn-sm">Editar</a>
+                        <form method="post" action="/admin/posts/<%= p.id %>/delete" onsubmit="return confirm('¿Eliminar esta noticia?')">
+                          <button class="btn btn-sm btn-sm-red" type="submit">Eliminar</button>
+                        </form>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              <% }) %>
+            </div>
+          <% } %>
+        </div>
+      </div>
+    </div>
+  </div>
+  <%- include("../partials/footer") %>
+</body>
+</html>

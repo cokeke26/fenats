@@ -1,0 +1,487 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>FENATS Octava Región</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Barlow:ital,wght@0,400;0,500;0,600;1,400&family=Barlow+Condensed:wght@700;900&display=swap" rel="stylesheet" />
+  <style>
+    :root{--red:#d40000;--red-dk:#b80000;--red-lt:rgba(212,0,0,.07);--text:#111;--muted:#555;--border:#e4e4e4;--bg:#f5f5f5;--white:#fff;}
+    *{box-sizing:border-box;margin:0;padding:0;}
+    html{scroll-behavior:smooth;}
+    body{font-family:'Barlow',sans-serif;color:var(--text);background:var(--white);}
+
+    /* NAV */
+    .nav{position:sticky;top:0;z-index:100;background:var(--red);height:60px;display:flex;align-items:center;justify-content:space-between;padding:0 32px;gap:16px;box-shadow:0 2px 12px rgba(0,0,0,.18);}
+    .nav-brand{display:flex;align-items:center;gap:12px;text-decoration:none;}
+    .nav-logo{width:38px;height:38px;border-radius:50%;object-fit:contain;background:white;padding:3px;}
+    .nav-name{font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:900;color:white;letter-spacing:1px;text-transform:uppercase;}
+    .nav-links{display:flex;gap:4px;align-items:center;}
+    .nav-link{padding:7px 12px;border-radius:7px;font-size:13px;font-weight:600;color:rgba(255,255,255,.88);text-decoration:none;transition:background .12s;}
+    .nav-link:hover{background:rgba(255,255,255,.15);color:white;}
+    .nav-cta{padding:8px 16px;border-radius:8px;background:white;color:var(--red);font-size:13px;font-weight:700;text-decoration:none;transition:background .12s;}
+    .nav-cta:hover{background:#f5f5f5;}
+    .nav-menu-btn{display:none;background:none;border:none;cursor:pointer;padding:6px;}
+    .nav-menu-btn span{display:block;width:22px;height:2px;background:white;margin:4px 0;border-radius:2px;transition:all .2s;}
+
+    /* HERO */
+    .hero{background:var(--bg);padding:64px 32px;display:flex;align-items:center;justify-content:space-between;gap:32px;flex-wrap:wrap;border-bottom:1px solid var(--border);position:relative;overflow:hidden;}
+    .hero::before{content:'';position:absolute;right:-100px;top:-100px;width:400px;height:400px;border-radius:50%;background:rgba(212,0,0,.05);}
+    .hero-text{flex:1;min-width:280px;position:relative;z-index:1;}
+    .hero-eyebrow{font-size:20px;font-weight:700;color:var(--red);letter-spacing:1.4px;text-transform:uppercase;margin-bottom:14px;}
+    .hero-title{font-family:'Barlow Condensed',sans-serif;font-size:52px;font-weight:900;color:var(--text);line-height:1.0;letter-spacing:-.5px;margin-bottom:16px;}
+    .hero-title span{color:var(--red);}
+    .hero-sub{font-size:16px;color:var(--muted);line-height:1.65;margin-bottom:28px;max-width:480px;}
+    .hero-btns{display:flex;gap:12px;flex-wrap:wrap;}
+    .btn-red{display:inline-flex;align-items:center;justify-content:center;padding:13px 24px;background:var(--red);color:white;border-radius:10px;font-size:14px;font-weight:700;text-decoration:none;border:none;cursor:pointer;transition:background .12s,transform .1s;}
+    .btn-red:hover{background:var(--red-dk);}
+    .btn-red:active{transform:scale(.99);}
+    .btn-outline{display:inline-flex;align-items:center;justify-content:center;padding:13px 24px;background:white;color:var(--text);border-radius:10px;font-size:14px;font-weight:700;text-decoration:none;border:1.5px solid var(--border);cursor:pointer;transition:border-color .12s,background .12s;}
+    .btn-outline:hover{border-color:#bbb;background:#f9f9f9;}
+    .hero-stats{display:flex;gap:16px;flex-wrap:wrap;position:relative;z-index:1;}
+    .stat-card{background:white;border:1.5px solid var(--border);border-radius:14px;padding:18px 24px;text-align:center;min-width:110px;box-shadow:0 1px 4px rgba(0,0,0,.05);}
+    .stat-num{font-family:'Barlow Condensed',sans-serif;font-size:34px;font-weight:900;color:var(--red);line-height:1;}
+    .stat-lbl{font-size:11px;color:var(--muted);margin-top:4px;text-transform:uppercase;letter-spacing:.5px;}
+
+    /* SECCIONES */
+    .section{padding:60px 32px;}
+    .section-alt{background:var(--bg);}
+    .section-inner{max-width:1100px;margin:0 auto;}
+    .section-header{margin-bottom:32px;}
+    .section-eyebrow{font-size:15px;font-weight:700;color:var(--red);letter-spacing:1.2px;text-transform:uppercase;margin-bottom:8px;}
+    .section-title{font-family:'Barlow Condensed',sans-serif;font-size:30px;font-weight:900;color:var(--text);text-transform:uppercase;letter-spacing:.2px;}
+    .section-sub{font-size:14px;color:var(--muted);margin-top:6px;line-height:1.55;}
+    .red-line{width:44px;height:3px;background:var(--red);border-radius:2px;margin-top:14px;}
+
+    /* NOTICIAS */
+    .news-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:20px;}
+    .news-card{background:white;border:1.5px solid var(--border);border-radius:14px;overflow:hidden;transition:box-shadow .15s,transform .15s;}
+    .news-card:hover{box-shadow:0 8px 24px rgba(0,0,0,.08);transform:translateY(-2px);}
+    .news-img{width:100%;height:180px;object-fit:cover;display:block;}
+    .news-img-ph{width:100%;height:180px;background:#f0f0f0;display:flex;align-items:center;justify-content:center;}
+    .news-img-ph-icon{width:48px;height:48px;border-radius:10px;background:#e0e0e0;}
+    .clickable{cursor:pointer;}
+
+    /* MODAL NOTICIAS */
+    .news-modal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.8);display:flex;align-items:center;justify-content:center;z-index:1000;padding:20px;opacity:0;visibility:hidden;transition:opacity .3s,visibility .3s;}
+    .news-modal.active{opacity:1;visibility:visible;}
+    .news-modal-content{background:white;border-radius:16px;max-width:800px;width:100%;max-height:90vh;overflow-y:auto;position:relative;}
+    .news-modal-close{position:absolute;top:16px;right:16px;width:32px;height:32px;border-radius:50%;background:#f0f0f0;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;color:#666;z-index:1;}
+    .news-modal-img{width:100%;height:300px;object-fit:cover;border-radius:16px 16px 0 0;}
+    .news-modal-body{padding:24px;}
+    .news-modal-tag{display:inline-block;padding:4px 12px;background:var(--red-lt);color:var(--red);border-radius:6px;font-size:12px;font-weight:700;margin-bottom:12px;}
+    .news-modal-title{font-size:24px;font-weight:700;color:var(--text);margin-bottom:16px;line-height:1.3;}
+    .news-modal-content-text{font-size:16px;color:var(--muted);line-height:1.7;margin-bottom:20px;max-height:400px;overflow-y:auto;padding-right:10px;white-space:pre-line;}
+    .news-modal-date{font-size:14px;color:#aaa;}
+    .news-body{padding:18px;}
+    .news-tag{display:inline-block;padding:3px 10px;background:var(--red-lt);color:var(--red);border-radius:5px;font-size:11px;font-weight:700;letter-spacing:.4px;margin-bottom:8px;}
+    .news-title{font-size:16px;font-weight:700;color:var(--text);line-height:1.3;margin-bottom:8px;}
+    .news-excerpt{font-size:13px;color:var(--muted);line-height:1.6;display:-webkit-box;-webkit-line-clamp:3;line-clamp: 3;-webkit-box-orient:vertical;overflow:hidden;margin-bottom:12px;}
+    .news-date{font-size:12px;color:#aaa;}
+    .news-empty{text-align:center;padding:48px 20px;color:var(--muted);font-size:14px;background:white;border:1.5px solid var(--border);border-radius:14px;}
+
+    /* QUIÉNES SOMOS */
+    .about-grid{display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center;}
+    .about-img{width:100%;height:300px;object-fit:cover;border-radius:16px;background:#e8e8e8;display:flex;align-items:center;justify-content:center;}
+    .about-img-ph{width:80px;height:80px;border-radius:50%;background:#d8d8d8;}
+    .about-text p{font-size:15px;color:var(--muted);line-height:1.75;margin-bottom:16px;}
+    .filiales{display:flex;flex-wrap:wrap;gap:8px;margin-top:20px;}
+    .filial-badge{padding:6px 14px;background:var(--red-lt);color:var(--red);border-radius:6px;font-size:13px;font-weight:700;}
+
+    /* GALERÍA */
+    .gallery-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;}
+    .gallery-item{border-radius:12px;overflow:hidden;aspect-ratio:1;position:relative;}
+    .gallery-item:first-child{grid-column:span 2;grid-row:span 2;aspect-ratio:auto;}
+    .gallery-img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .3s;}
+    .gallery-item:hover .gallery-img{transform:scale(1.03);}
+    .gallery-ph{width:100%;height:100%;background:#e8e8e8;display:flex;align-items:center;justify-content:center;min-height:120px;}
+    .gallery-ph-icon{width:28px;height:28px;border-radius:6px;background:#d8d8d8;}
+    .gallery-overlay{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(to top, rgba(0,0,0,.7), transparent);padding:12px;color:white;font-size:12px;font-weight:600;text-shadow:0 1px 2px rgba(0,0,0,.5);pointer-events:none;}
+
+    /* CTA CREDENCIAL */
+    .cta-section{background:var(--red);padding:60px 32px;text-align:center;}
+    .cta-inner{max-width:600px;margin:0 auto;}
+    .cta-title{font-family:'Barlow Condensed',sans-serif;font-size:36px;font-weight:900;color:white;text-transform:uppercase;letter-spacing:.3px;margin-bottom:12px;}
+    .cta-sub{font-size:15px;color:rgba(255,255,255,.82);line-height:1.6;margin-bottom:28px;}
+    .cta-btn{display:inline-flex;align-items:center;justify-content:center;padding:15px 32px;background:white;color:var(--red);border-radius:10px;font-size:15px;font-weight:700;text-decoration:none;transition:background .12s;}
+    .cta-btn:hover{background:#f5f5f5;}
+
+    /* CARRUSEL CONVENIOS */
+    .carousel-wrap{position:relative;overflow:hidden;}
+    .carousel-track{display:flex;gap:16px;transition:transform .4s ease;}
+    .conv-card{flex:0 0 180px;background:white;border:1.5px solid var(--border);border-radius:12px;padding:16px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;min-height:140px;}
+    .conv-logo{width:80px;height:50px;object-fit:contain;}
+    .conv-name{font-size:12px;font-weight:700;color:var(--text);text-align:center;line-height:1.3;}
+    .conv-name-only{font-size:13px;font-weight:700;color:var(--text);text-align:center;line-height:1.4;}
+    .conv-details{display:flex;flex-direction:column;gap:4px;margin-top:8px;}
+    .conv-address{font-size:12px;color:#666;text-align:center;}
+    .conv-phone{font-size:12px;color:#666;text-align:center;}
+    .carousel-btn{position:absolute;top:50%;transform:translateY(-50%);width:38px;height:38px;border-radius:50%;background:white;border:1.5px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:2;box-shadow:0 2px 8px rgba(0,0,0,.10);transition:background .12s;}
+    .carousel-btn:hover{background:#f5f5f5;}
+    .carousel-btn.prev{left:0;}
+    .carousel-btn.next{right:0;}
+    .carousel-dots{display:flex;justify-content:center;gap:6px;margin-top:16px;}
+    .carousel-dot{width:8px;height:8px;border-radius:50%;background:#ddd;cursor:pointer;transition:background .2s;}
+    .carousel-dot.active{background:var(--red);}
+    .conv-empty{text-align:center;padding:32px;color:var(--muted);font-size:14px;background:white;border:1.5px solid var(--border);border-radius:14px;}
+
+    /* FOOTER */
+    .footer{background:#111;padding:36px 32px;}
+    .footer-inner{max-width:1100px;margin:0 auto;display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:24px;}
+    .footer-brand{font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:900;color:white;letter-spacing:1px;margin-bottom:8px;}
+    .footer-info{font-size:13px;color:#888;line-height:1.7;}
+    .footer-dev{font-size:12px;color:#444;align-self:flex-end;}
+
+    /* RESPONSIVE */
+    @media(max-width:900px){
+      .hero{padding:40px 20px;}
+      .hero-title{font-size:38px;}
+      .about-grid{grid-template-columns:1fr;}
+      .about-img{height:220px;}
+      .gallery-grid{grid-template-columns:repeat(2,1fr);}
+      .gallery-item:first-child{grid-column:span 1;grid-row:span 1;}
+      .section{padding:40px 20px;}
+      .nav{padding:0 16px;}
+      .nav-links{display:none;}
+      .nav-menu-btn{display:block;}
+    }
+    @media(max-width:600px){
+      .hero-title{font-size:30px;}
+      .hero-stats{gap:10px;}
+      .stat-card{min-width:80px;padding:12px 14px;}
+      .stat-num{font-size:26px;}
+      .news-grid{grid-template-columns:1fr;}
+      .gallery-grid{grid-template-columns:repeat(2,1fr);}
+      .conv-card{flex:0 0 150px;}
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav class="nav">
+    <a class="nav-brand" href="/">
+      <img class="nav-logo" src="/assets/screenshots/logo_fenats.jpeg" alt="Logo FENATS" />
+      <span class="nav-name">FENATS Octava Región</span>
+    </a>
+    <div class="nav-links">
+      <a class="nav-link" href="#noticias">Noticias</a>
+      <a class="nav-link" href="#quienes-somos">Quiénes somos</a>
+      <a class="nav-link" href="/historia">Historia</a>
+      <a class="nav-link" href="#galeria">Galería</a>
+      <a class="nav-link" href="#convenios">Convenios</a>
+      <a class="nav-cta" href="/login-member">Mi credencial</a>
+    </div>
+    <button class="nav-menu-btn" id="menuBtn" aria-label="Menú">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-text">
+      <div class="hero-eyebrow">Federación de Trabajadores de la Salud</div>
+      <h1 class="hero-title">Unidos por la<br><span>salud pública</span><br>del Bío-Bío y Ñuble</h1>
+      <p class="hero-sub">Representamos a los trabajadores de la salud, defendiendo sus derechos y promoviendo el bienestar de nuestros socios y sus familias.</p>
+      <div class="hero-btns">
+        <a class="btn-red" href="/login-member">Ver mi credencial</a>
+        <a class="btn-outline" href="#quienes-somos">Conocer más</a>
+      </div>
+    </div>
+    <div class="hero-stats">
+      <div class="stat-card">
+        <div class="stat-num"><%= memberCount.toLocaleString("es-CL") %></div>
+        <div class="stat-lbl">Socios activos</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num"><%= convenioCount %>+</div>
+        <div class="stat-lbl">Convenios</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num">31</div>
+        <div class="stat-lbl">Bases</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- NOTICIAS -->
+  <section class="section" id="noticias">
+    <div class="section-inner">
+      <div class="section-header">
+        <div class="section-eyebrow">Últimas noticias</div>
+        <div class="section-title">Mantente informado</div>
+        <div class="section-sub">Novedades y comunicados de FENATS Octava Región.</div>
+        <div class="red-line"></div>
+      </div>
+      <% if (!posts || posts.length === 0) { %>
+        <div class="news-empty">No hay noticias publicadas aún.</div>
+      <% } else { %>
+        <div class="news-grid">
+          <% posts.forEach(function(p) { %>
+            <article class="news-card">
+              <% if (p.imageUrl) { %>
+                <img class="news-img clickable" src="<%= p.imageUrl %>" alt="<%= p.title %>" onclick="window.openNewsModalFromElement(this.parentElement)" />
+              <% } else { %>
+                <div class="news-img-ph clickable" onclick="window.openNewsModalFromElement(this.parentElement)"><div class="news-img-ph-icon"></div></div>
+              <% } %>
+              <div class="news-body">
+                <div class="news-tag"><%= p.category %></div>
+                <div class="news-title"><%= p.title %></div>
+                <div class="news-excerpt"><%= p.content %></div>
+                <div class="news-date"><%= new Date(p.createdAt).toLocaleDateString("es-CL", { year:"numeric", month:"long", day:"numeric" }) %></div>
+              </div>
+            </article>
+          <% }) %>
+        </div>
+      <% } %>
+    </div>
+  </section>
+
+  <!-- QUIÉNES SOMOS -->
+  <section class="section section-alt" id="quienes-somos">
+    <div class="section-inner">
+      <div class="about-grid">
+        <div>
+          <div class="about-img">
+            <div class="about-img-ph"></div>
+          </div>
+        </div>
+        <div class="about-text">
+          <div class="section-eyebrow">Quiénes somos</div>
+          <div class="section-title">FENATS Octava Región</div>
+          <div class="red-line" style="margin-bottom:20px;"></div>
+          <p>Somos la organización sindical que representa a los trabajadores de la salud pública de la Región del Biobío. Fundada con el objetivo de velar por los derechos laborales de nuestros afiliados, promovemos su bienestar a través de convenios, capacitaciones y representación gremial.</p>
+          <p>Contamos con bases en las principales comunas de la región, con presencia activa en los servicios de salud públicos del territorio.</p>
+          <div class="filiales">
+            <span class="filial-badge">Talcahuano</span>
+            <span class="filial-badge">Concepción</span>
+            <span class="filial-badge">Arauco</span>
+            <span class="filial-badge">Ñuble</span>
+            <span class="filial-badge">Bío-Bío</span>
+          </div>
+          <div style="margin-top:24px;">
+            <a class="btn-red" href="/historia" style="text-decoration:none;">Ver historia completa</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- GALERÍA -->
+  <section class="section" id="galeria">
+    <div class="section-inner">
+      <div class="section-header">
+        <div class="section-eyebrow">Galería</div>
+        <div class="section-title">Nuestra delegación</div>
+        <div class="section-sub">Momentos de nuestra organización y actividades.</div>
+        <div class="red-line"></div>
+      </div>
+      <% if (!photos || photos.length === 0) { %>
+        <div class="gallery-grid">
+          <% for(let i = 0; i < 5; i++) { %>
+            <div class="gallery-item"><div class="gallery-ph"><div class="gallery-ph-icon"></div></div></div>
+          <% } %>
+        </div>
+      <% } else { %>
+        <div class="gallery-grid">
+          <% photos.slice(0, 5).forEach(function(ph) { %>
+            <div class="gallery-item">
+              <img class="gallery-img" src="<%= ph.imageUrl %>" alt="<%= ph.caption ?? 'Foto FENATS' %>" />
+              <% if (ph.caption) { %>
+                <div class="gallery-overlay"><%= ph.caption %></div>
+              <% } %>
+            </div>
+          <% }) %>
+        </div>
+      <% } %>
+    </div>
+  </section>
+
+  <!-- CTA CREDENCIAL -->
+  <section class="cta-section">
+    <div class="cta-inner">
+      <div class="cta-title">¿Eres socio FENATS?</div>
+      <p class="cta-sub">Accede a tu credencial digital con código QR para presentar en convenios y verificar tu vigencia al instante.</p>
+      <a class="cta-btn" href="/login-member">Ver mi credencial →</a>
+    </div>
+  </section>
+
+  <!-- CONVENIOS -->
+  <section class="section section-alt" id="convenios">
+    <div class="section-inner">
+      <div class="section-header">
+        <div class="section-eyebrow">Convenios</div>
+        <div class="section-title">Beneficios para socios</div>
+        <div class="section-sub">Descuentos y beneficios exclusivos para socios vigentes en comercios y servicios de la región.</div>
+        <div class="red-line"></div>
+      </div>
+
+      <% if (!convenios || convenios.length === 0) { %>
+        <div class="conv-empty">Los convenios estarán disponibles próximamente.</div>
+      <% } else { %>
+        <div class="carousel-wrap" id="carouselWrap">
+          <button class="carousel-btn prev" id="prevBtn" aria-label="Anterior">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="2.5" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg>
+          </button>
+          <div style="overflow:hidden;margin:0 48px;">
+            <div class="carousel-track" id="carouselTrack">
+              <% convenios.forEach(function(c) { %>
+                <div class="conv-card">
+                  <% if (c.logoUrl) { %>
+                    <img class="conv-logo" src="<%= c.logoUrl %>" alt="<%= c.name %>" />
+                  <% } %>
+                  <div class="<%= c.logoUrl ? 'conv-name' : 'conv-name-only' %>"><%= c.name %></div>
+                  <div class="conv-details">
+                    <div class="conv-address"><%= c.address %></div>
+                    <div class="conv-phone"><%= c.phone %></div>
+                  </div>
+                </div>
+              <% }) %>
+            </div>
+          </div>
+          <button class="carousel-btn next" id="nextBtn" aria-label="Siguiente">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="2.5" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg>
+          </button>
+        </div>
+        <div class="carousel-dots" id="carouselDots"></div>
+      <% } %>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="footer-inner">
+      <div>
+        <div class="footer-brand">FENATS Octava Región</div>
+        <div class="footer-info">
+          Teléfono: (41) 343 3290<br>
+          Dirección: Argentina 1037, Concepción, Biobío<br>
+          <a href="/login-member" style="color:#888;text-decoration:none;margin-top:4px;display:inline-block;">Acceso socios →</a>
+        </div>
+      </div>
+      <div class="footer-dev">Sistema desarrollado por Hidracode Solutions</div>
+    </div>
+  </footer>
+
+  <!-- MODAL NOTICIAS -->
+  <div id="newsModal" class="news-modal">
+    <div class="news-modal-content">
+      <div class="news-modal-close" onclick="window.closeNewsModal()">×</div>
+      <img id="newsModalImg" class="news-modal-img" src="" alt="" style="display:none;" />
+      <div class="news-modal-body">
+        <div id="newsModalTag" class="news-modal-tag"></div>
+        <div id="newsModalTitle" class="news-modal-title"></div>
+        <div id="newsModalContent" class="news-modal-content-text"></div>
+        <div id="newsModalDate" class="news-modal-date"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Carrusel convenios
+    const track = document.getElementById("carouselTrack");
+    const dotsEl = document.getElementById("carouselDots");
+
+    if (track) {
+      const cards     = track.querySelectorAll(".conv-card");
+      const cardWidth = 196; // 180px + 16px gap
+      const visible   = Math.floor((track.parentElement.offsetWidth) / cardWidth) || 3;
+      const total     = cards.length;
+      const maxSlide  = Math.max(0, total - visible);
+      let current     = 0;
+
+      // Crear dots
+      const numDots = maxSlide + 1;
+      for (let i = 0; i < numDots; i++) {
+        const d = document.createElement("div");
+        d.className = "carousel-dot" + (i === 0 ? " active" : "");
+        d.addEventListener("click", () => goTo(i));
+        dotsEl.appendChild(d);
+      }
+
+      function goTo(idx) {
+        current = Math.max(0, Math.min(idx, maxSlide));
+        track.style.transform = `translateX(-${current * cardWidth}px)`;
+        dotsEl.querySelectorAll(".carousel-dot").forEach((d, i) =>
+          d.classList.toggle("active", i === current)
+        );
+      }
+
+      document.getElementById("prevBtn").addEventListener("click", () => goTo(current - 1));
+      document.getElementById("nextBtn").addEventListener("click", () => goTo(current + 1));
+
+      // Auto-avance cada 4s
+      setInterval(() => goTo(current >= maxSlide ? 0 : current + 1), 4000);
+    }
+
+    // Modal de noticias
+    function openNewsModalFromElement(element) {
+      const title = element.querySelector('.news-title').textContent;
+      const imageUrl = element.querySelector('.news-img') ? element.querySelector('.news-img').src : '';
+      const content = element.querySelector('.news-excerpt').textContent;
+      const date = element.querySelector('.news-date').textContent;
+      const category = element.querySelector('.news-tag').textContent;
+
+      openNewsModal(title, imageUrl, content, date, category);
+    }
+
+    function openNewsModal(title, imageUrl, content, date, category) {
+      const modal = document.getElementById('newsModal');
+      const modalImg = document.getElementById('newsModalImg');
+      const modalTag = document.getElementById('newsModalTag');
+      const modalTitle = document.getElementById('newsModalTitle');
+      const modalContent = document.getElementById('newsModalContent');
+      const modalDate = document.getElementById('newsModalDate');
+
+      modalTitle.textContent = title;
+      modalContent.textContent = content;
+      modalDate.textContent = date;
+      modalTag.textContent = category;
+
+      if (imageUrl) {
+        modalImg.src = imageUrl;
+        modalImg.alt = title;
+        modalImg.style.display = 'block';
+      } else {
+        modalImg.style.display = 'none';
+      }
+
+      modal.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeNewsModal() {
+      const modal = document.getElementById('newsModal');
+      modal.classList.remove('active');
+      document.body.style.overflow = '';
+    }
+
+    // Hacer funciones globales
+    window.openNewsModalFromElement = openNewsModalFromElement;
+    window.openNewsModal = openNewsModal;
+    window.closeNewsModal = closeNewsModal;
+
+    // Cerrar modal al hacer clic fuera y con Escape
+    const modal = document.getElementById('newsModal');
+    if (modal) {
+      // Cerrar modal al hacer clic fuera
+      modal.addEventListener('click', function(e) {
+        // Cerrar si se hace clic en el modal (fondo) o en la X
+        if (e.target === modal || e.target.classList.contains('news-modal-close')) {
+          window.closeNewsModal();
+        }
+      });
+
+      // Cerrar modal con tecla Escape
+      document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && modal.classList.contains('active')) {
+          window.closeNewsModal();
+        }
+      });
+    }
+  </script>
+
+</body>
+</html>

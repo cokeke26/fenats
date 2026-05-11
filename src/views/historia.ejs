@@ -1,0 +1,285 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Historia de FENATS · Octava Región</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Barlow', sans-serif;
+      line-height: 1.6;
+      color: #111;
+      background: #f4f4f4;
+    }
+
+    .header {
+      background: linear-gradient(135deg, #d40000 0%, #b80000 100%);
+      color: white;
+      padding: 60px 20px;
+      text-align: center;
+    }
+
+    .header h1 {
+      font-size: 2.5em;
+      margin-bottom: 10px;
+      font-weight: 700;
+    }
+
+    .header p {
+      font-size: 1.1em;
+      opacity: 0.95;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+
+    /* Sección de historia */
+    .historia-section {
+      background: white;
+      border-radius: 12px;
+      padding: 40px;
+      margin-bottom: 40px;
+      box-shadow: 0 2px 8px rgba(0,0,0,.08);
+    }
+
+    .historia-section h2 {
+      color: #d40000;
+      font-size: 1.8em;
+      margin-bottom: 20px;
+      border-bottom: 3px solid #d40000;
+      padding-bottom: 10px;
+    }
+
+    .historia-section p {
+      margin-bottom: 15px;
+      font-size: 1em;
+      line-height: 1.8;
+      color: #333;
+    }
+
+    /* Galería de directiva */
+    .directiva-section {
+      background: white;
+      border-radius: 12px;
+      padding: 40px;
+      margin-bottom: 40px;
+      box-shadow: 0 2px 8px rgba(0,0,0,.08);
+    }
+
+    .directiva-section h2 {
+      color: #d40000;
+      font-size: 1.8em;
+      margin-bottom: 30px;
+      border-bottom: 3px solid #d40000;
+      padding-bottom: 10px;
+    }
+
+    .galeria {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 25px;
+    }
+
+    .card-persona {
+      text-align: center;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 2px 6px rgba(0,0,0,.1);
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+
+    .card-persona:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 16px rgba(0,0,0,.15);
+    }
+
+    .card-persona img {
+      width: 100%;
+      height: 280px;
+      object-fit: cover;
+      display: block;
+    }
+
+    .card-persona-info {
+      padding: 16px 12px;
+      background: white;
+    }
+
+    .card-persona-info h3 {
+      font-size: 0.95em;
+      font-weight: 700;
+      color: #d40000;
+      margin-bottom: 6px;
+      line-height: 1.3;
+    }
+
+    .card-persona-info p {
+      font-size: 0.9em;
+      color: #333;
+      margin: 3px 0;
+      font-weight: 500;
+    }
+
+    /* Organigrama */
+    .organigrama-section {
+      background: white;
+      border-radius: 12px;
+      padding: 40px;
+      margin-bottom: 40px;
+      box-shadow: 0 2px 8px rgba(0,0,0,.08);
+    }
+
+    .organigrama-section h2 {
+      color: #d40000;
+      font-size: 1.8em;
+      margin-bottom: 30px;
+      border-bottom: 3px solid #d40000;
+      padding-bottom: 10px;
+    }
+
+    .organigrama-img {
+      width: 100%;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,.1);
+      margin-bottom: 20px;
+    }
+
+    .bases-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 15px;
+    }
+
+    .base-badge {
+      background: linear-gradient(135deg, #d40000 0%, #b80000 100%);
+      color: white;
+      padding: 15px;
+      border-radius: 8px;
+      text-align: center;
+      font-weight: 600;
+      font-size: 0.9em;
+      box-shadow: 0 2px 6px rgba(212,0,0,.2);
+    }
+
+    /* Footer */
+    .footer-nav {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      margin-top: 40px;
+      padding-top: 30px;
+      border-top: 1px solid #e0e0e0;
+    }
+
+    .footer-nav a {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 20px;
+      background: #d40000;
+      color: white;
+      text-decoration: none;
+      border-radius: 8px;
+      font-weight: 600;
+      transition: background 0.3s;
+    }
+
+    .footer-nav a:hover {
+      background: #b80000;
+    }
+
+    .breadcrumb {
+      margin-bottom: 20px;
+      font-size: 0.9em;
+      color: #666;
+    }
+
+    .breadcrumb a {
+      color: #d40000;
+      text-decoration: none;
+    }
+
+    .breadcrumb a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>Historia de FENATS</h1>
+    <p>Octava Región · Construcción de una historia de lucha y organización</p>
+  </div>
+
+  <div class="container">
+    <div class="breadcrumb">
+      <a href="/">← Volver al inicio</a>
+    </div>
+
+    <!-- HISTORIA -->
+    <div class="historia-section">
+      <h2>Nuestra Historia</h2>
+      <% if (historia && historia.contenido) { %>
+        <%- historia.contenido %>
+      <% } else { %>
+        <p>Próximamente se agregará la historia completa de FENATS.</p>
+      <% } %>
+    </div>
+
+    <!-- DIRECTIVA -->
+    <% if (directiva && directiva.length > 0) { %>
+    <div class="directiva-section">
+      <h2>Directiva</h2>
+      <p style="color: #666; margin-bottom: 25px; font-size: 0.95em;">
+        Período Octubre 2025 – Octubre 2027
+      </p>
+      <div class="galeria">
+        <% directiva.forEach(persona => { %>
+        <div class="card-persona">
+          <% if (persona.foto) { %>
+            <img src="<%= persona.foto %>" alt="<%= persona.nombre %>" />
+          <% } else { %>
+            <div style="width:100%; height:280px; background:#e8e8e8; display:flex; align-items:center; justify-content:center; color:#aaa; font-size:0.9em;">
+              Foto
+            </div>
+          <% } %>
+          <div class="card-persona-info">
+            <h3><%= persona.cargo %></h3>
+            <p><%= persona.nombre %></p>
+            <% if (persona.establecimiento) { %>
+              <p style="font-size: 0.85em; color: #888; margin-top: 5px;"><%= persona.establecimiento %></p>
+            <% } %>
+          </div>
+        </div>
+        <% }); %>
+      </div>
+    </div>
+    <% } %>
+
+    <!-- ORGANIGRAMA DE BASES -->
+    <div class="organigrama-section">
+      <h2>Nuestras 31 Bases</h2>
+      
+      <% if (organigrama && organigrama.imagen) { %>
+        <img src="<%= organigrama.imagen %>" alt="Organigrama de bases" class="organigrama-img" />
+      <% } %>
+
+      
+    </div>
+
+    <div class="footer-nav">
+      <a href="/">← Inicio</a>
+      <a href="/#quienes-somos">Quiénes somos</a>
+    </div>
+  </div>
+
+  <%- include("partials/footer") %>
+</body>
+</html>

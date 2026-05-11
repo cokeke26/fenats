@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>FENATS · Editar noticia</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@700;900&display=swap" rel="stylesheet" />
+  <style>
+    :root{--red:#d40000;--red-dk:#b80000;--red-lt:rgba(212,0,0,.08);--red-br:rgba(212,0,0,.22);--ok:#16a34a;--ok-lt:rgba(22,163,74,.10);--ok-br:rgba(22,163,74,.28);--text:#111;--muted:#666;--border:#e4e4e4;--bg:#f4f4f4;--white:#ffffff;}
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{min-height:100vh;background:var(--bg);font-family:'Barlow',sans-serif;color:var(--text);display:flex;flex-direction:column;background-image:radial-gradient(circle at 95% 5%,rgba(212,0,0,.06) 0%,transparent 45%);}
+    body::before{content:'';display:block;height:5px;background:var(--red);flex-shrink:0;}
+    .page{flex:1;padding:24px 20px 32px;}
+    .wrap{width:min(760px,100%);margin:0 auto;}
+    .navbar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:28px;padding-bottom:18px;border-bottom:1px solid var(--border);}
+    .brand{display:flex;align-items:center;gap:12px;}
+    .brand-logo{width:44px;height:44px;object-fit:contain;border-radius:50%;background:white;padding:3px;box-shadow:0 2px 10px rgba(212,0,0,.18);}
+    .brand-name{font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:900;color:var(--red);letter-spacing:1px;text-transform:uppercase;line-height:1.1;}
+    .brand-sub{font-size:11px;font-weight:600;color:var(--muted);letter-spacing:.5px;text-transform:uppercase;}
+    .nav{display:flex;gap:8px;flex-wrap:wrap;}
+    .btn{display:inline-flex;align-items:center;justify-content:center;padding:9px 14px;border-radius:9px;border:1.5px solid var(--border);background:var(--white);color:var(--text);text-decoration:none;font-family:'Barlow',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:border-color .15s,background .15s;white-space:nowrap;}
+    .btn:hover{border-color:#bbb;background:#f9f9f9;}
+    .btn-primary{background:var(--red);border-color:var(--red);color:white;}
+    .btn-primary:hover{background:var(--red-dk);border-color:var(--red-dk);}
+    .btn-ghost{background:transparent;color:var(--muted);}
+    .btn-ghost:hover{color:var(--text);border-color:#aaa;}
+    .card{background:var(--white);border:1.5px solid var(--border);border-radius:16px;box-shadow:0 1px 4px rgba(0,0,0,.05);overflow:hidden;}
+    .card-head{background:var(--red);padding:20px 26px 18px;}
+    .card-title{font-family:'Barlow Condensed',sans-serif;font-size:21px;font-weight:900;color:white;letter-spacing:.5px;text-transform:uppercase;}
+    .card-sub{margin-top:5px;font-size:12px;color:rgba(255,255,255,.78);line-height:1.45;}
+    .card-body{padding:26px;}
+    .field{margin-bottom:16px;}
+    .field-label{display:block;font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.9px;text-transform:uppercase;margin-bottom:7px;}
+    .field-input,.field-select,.field-textarea{width:100%;padding:11px 14px;border:1.5px solid var(--border);border-radius:10px;font-family:'Barlow',sans-serif;font-size:14px;color:var(--text);background:#fafafa;outline:none;transition:border-color .15s,background .15s;}
+    .field-input:focus,.field-select:focus,.field-textarea:focus{border-color:var(--red);background:white;}
+    .field-textarea{min-height:140px;resize:vertical;line-height:1.6;}
+    .field-select{appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23666' d='M6 8L1 3h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;background-color:#fafafa;padding-right:36px;cursor:pointer;}
+    .field-hint{margin-top:6px;font-size:12px;color:var(--muted);}
+    .file-area{border:2px dashed var(--border);border-radius:10px;padding:20px;text-align:center;background:#fafafa;cursor:pointer;transition:border-color .15s,background .15s;}
+    .file-area:hover{border-color:var(--red);background:var(--red-lt);}
+    .file-label{display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;font-size:13px;color:var(--muted);}
+    .file-label b{color:var(--red);}
+    .file-name{margin-top:8px;font-size:13px;font-weight:600;color:var(--ok);display:none;}
+    #fileInput{display:none;}
+    .checkbox-row{display:flex;align-items:center;gap:10px;}
+    .checkbox-row input[type="checkbox"]{width:18px;height:18px;accent-color:var(--red);cursor:pointer;}
+    .checkbox-label{font-size:14px;color:var(--text);font-weight:600;}
+    .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+    .action-bar{display:flex;gap:10px;margin-top:22px;flex-wrap:wrap;}
+    .action-bar .btn{flex:1;min-width:130px;padding:12px 14px;}
+    .alert{margin-top:16px;padding:12px 16px;border-radius:10px;font-size:13px;font-weight:600;line-height:1.45;}
+    .alert-err{border:1.5px solid var(--red-br);background:var(--red-lt);color:var(--red);}
+    .alert-ok{border:1.5px solid var(--ok-br);background:var(--ok-lt);color:var(--ok);}
+    .current-image{margin-bottom:16px;padding:12px;border:1.5px solid var(--border);border-radius:10px;background:#fafafa;}
+    .current-image img{max-width:100%;height:auto;border-radius:6px;display:block;margin:0 auto;}
+    @media(max-width:560px){.grid-2{grid-template-columns:1fr;}}
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="wrap">
+      <nav class="navbar">
+        <div class="brand">
+          <img class="brand-logo" src="/assets/screenshots/logo_fenats.jpeg" alt="Logo FENATS" />
+          <div>
+            <div class="brand-name">FENATS</div>
+            <div class="brand-sub">Octava Región · Editar noticia</div>
+          </div>
+        </div>
+        <div class="nav">
+          <a class="btn" href="/admin/posts">Volver</a>
+          <a class="btn btn-ghost" href="/admin/logout">Salir</a>
+        </div>
+      </nav>
+
+      <% if (error) { %><div class="alert alert-err"><%= error %></div><% } %>
+      <% if (message) { %><div class="alert alert-ok"><%= message %></div><% } %>
+
+      <div class="card">
+        <div class="card-head">
+          <div class="card-title">Editar noticia</div>
+          <div class="card-sub">Modifica los campos. La noticia aparecerá en la página principal si está publicada.</div>
+        </div>
+        <div class="card-body">
+          <form method="post" action="/admin/posts/<%= post.id %>/edit" enctype="multipart/form-data">
+
+            <div class="field">
+              <label class="field-label" for="title">Título</label>
+              <input class="field-input" id="title" name="title" type="text" placeholder="Ej: Reunión de directiva con Servicio de Salud" value="<%= post.title %>" required />
+            </div>
+
+            <div class="grid-2">
+              <div class="field">
+                <label class="field-label" for="category">Categoría</label>
+                <select class="field-select" id="category" name="category">
+                  <option value="General"       <%= post.category === 'General'       ? 'selected' : '' %>>General</option>
+                  <option value="Directiva"     <%= post.category === 'Directiva'     ? 'selected' : '' %>>Directiva</option>
+                  <option value="Convenios"     <%= post.category === 'Convenios'     ? 'selected' : '' %>>Convenios</option>
+                  <option value="Administrativo" <%= post.category === 'Administrativo' ? 'selected' : '' %>>Administrativo</option>
+                  <option value="Actividades"   <%= post.category === 'Actividades'   ? 'selected' : '' %>>Actividades</option>
+                </select>
+              </div>
+              <div class="field" style="display:flex;flex-direction:column;justify-content:flex-end;">
+                <div class="checkbox-row">
+                  <input type="checkbox" id="published" name="published" <%= post.published ? 'checked' : '' %> />
+                  <label class="checkbox-label" for="published">Publicado</label>
+                </div>
+                <div class="field-hint">Si está marcado, aparecerá en la página principal</div>
+              </div>
+            </div>
+
+            <div class="field">
+              <label class="field-label" for="content">Contenido</label>
+              <textarea class="field-textarea" id="content" name="content" placeholder="Escribe el contenido de la noticia..." required><%= post.content %></textarea>
+            </div>
+
+            <% if (post.imageUrl) { %>
+            <div class="current-image">
+              <div style="font-size:12px;font-weight:700;color:var(--muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px;">Imagen actual</div>
+              <img src="<%= post.imageUrl %>" alt="Imagen actual" />
+            </div>
+            <% } %>
+
+            <div class="field">
+              <label class="field-label">Cambiar imagen (opcional)</label>
+              <div class="file-area" onclick="document.getElementById('fileInput').click()">
+                <div class="file-label">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M14 2H6C4.9 2 4.01 2.9 4.01 4L4 20C4 21.1 4.89 22 5.99 22H18C19.1 22 20 21.1 20 20V8L14 2ZM18 20H6V4H13V9H18V20Z" fill="currentColor"/>
+                    <path d="M8.5 15.5L10.5 17.5L15.5 12.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                  <div>Haz clic para seleccionar una imagen</div>
+                  <div style="font-size:11px;"><b>JPG, PNG, WEBP</b> · Máx. 5MB</div>
+                </div>
+                <div class="file-name" id="fileName"></div>
+              </div>
+              <input type="file" id="fileInput" name="image" accept="image/jpeg,image/png,image/webp" onchange="updateFileName()" />
+            </div>
+
+            <div class="action-bar">
+              <a href="/admin/posts" class="btn">Cancelar</a>
+              <button type="submit" class="btn btn-primary">Actualizar noticia</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  <%- include("../partials/footer") %>
+</body>
+<script>
+  function updateFileName() {
+    const input = document.getElementById('fileInput');
+    const fileName = document.getElementById('fileName');
+    if (input.files && input.files[0]) {
+      fileName.textContent = input.files[0].name;
+      fileName.style.display = 'block';
+    } else {
+      fileName.style.display = 'none';
+    }
+  }
+</script>
+</html>

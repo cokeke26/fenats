@@ -3,479 +3,625 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>FENATS · Admin · Usuarios</title>
-  <link rel="icon" type="image/png" href="/favicon.png" />
+  <title>FENATS · Usuarios Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@700;900&display=swap" rel="stylesheet" />
   <style>
-    :root{
-      --bg:#0b1220;
-      --card:rgba(255,255,255,.08);
-      --border:rgba(255,255,255,.12);
-      --text:rgba(255,255,255,.92);
-      --muted:rgba(255,255,255,.70);
-      --shadow:0 20px 60px rgba(0,0,0,.35);
-      --ok:#22c55e; --warn:#f59e0b; --bad:#ef4444; --blue:#3b82f6;
-      --btn: rgba(255,255,255,.10);
-      --btnBorder: rgba(255,255,255,.16);
-    }
-    *{box-sizing:border-box}
-    body{
-      margin:0; min-height:100vh; color:var(--text);
-      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
-      background:
-        radial-gradient(800px 500px at 20% 10%, rgba(34,197,94,.18), transparent 60%),
-        radial-gradient(900px 600px at 90% 30%, rgba(59,130,246,.20), transparent 60%),
-        radial-gradient(700px 500px at 40% 90%, rgba(245,158,11,.16), transparent 60%),
-        var(--bg);
-      padding: 24px;
-    }
-    .wrap{width:min(1100px,100%); margin:0 auto}
-
-    /* Top */
-    .top{
-      display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;
-      margin-bottom:14px;
-    }
-    .brand{display:flex;align-items:center;gap:10px;font-weight:900;letter-spacing:.2px}
-    .dot{
-      width:12px;height:12px;border-radius:999px;background:var(--blue);
-      box-shadow:0 0 0 6px rgba(255,255,255,.06)
-    }
-    .nav{display:flex;gap:10px;flex-wrap:wrap}
-    .btn{
-      display:inline-flex;align-items:center;justify-content:center;
-      padding:10px 12px;border-radius:14px;border:1px solid var(--btnBorder);
-      background:var(--btn);color:var(--text);text-decoration:none;font-weight:900;font-size:14px;
-      cursor:pointer;
-    }
-    .btnPrimary{background:rgba(255,255,255,.14);border-color:rgba(255,255,255,.22)}
-    .btnDanger{
-      border-color: rgba(239,68,68,.35);
-      background: rgba(239,68,68,.10);
-    }
-    .btnOk{
-      border-color: rgba(34,197,94,.30);
-      background: rgba(34,197,94,.10);
+    :root {
+      --red:     #d40000;
+      --red-dk:  #b80000;
+      --red-lt:  rgba(212,0,0,.08);
+      --red-br:  rgba(212,0,0,.22);
+      --ok:      #16a34a;
+      --ok-lt:   rgba(22,163,74,.10);
+      --ok-br:   rgba(22,163,74,.28);
+      --warn:    #b45309;
+      --warn-lt: rgba(180,83,9,.10);
+      --warn-br: rgba(180,83,9,.28);
+      --text:    #111;
+      --muted:   #666;
+      --border:  #e4e4e4;
+      --bg:      #f4f4f4;
+      --white:   #ffffff;
     }
 
-    /* Card */
-    .card{
-      background:var(--card);
-      border:1px solid var(--border);
-      border-radius:18px;
-      box-shadow:var(--shadow);
-      overflow:hidden;
-    }
-    .head{padding:18px 22px 14px;border-bottom:1px solid var(--border)}
-    h1{margin:0;font-size:20px}
-    p{margin:8px 0 0;color:var(--muted);font-size:13px;line-height:1.45}
-    .body{padding:16px 22px 20px}
+    * { box-sizing: border-box; margin: 0; padding: 0; }
 
-    /* Alerts */
-    .alert{
-      border:1px solid rgba(239,68,68,.35);
-      background: rgba(239,68,68,.10);
-      padding: 10px 12px;
-      border-radius: 14px;
-      color: rgba(255,255,255,.92);
+    body {
+      min-height: 100vh;
+      background: var(--bg);
+      font-family: 'Barlow', sans-serif;
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      background-image:
+        radial-gradient(circle at 95% 5%, rgba(212,0,0,.06) 0%, transparent 45%),
+        radial-gradient(circle at 5% 95%, rgba(212,0,0,.04) 0%, transparent 45%);
+    }
+
+    body::before {
+      content: '';
+      display: block;
+      height: 5px;
+      background: var(--red);
+      flex-shrink: 0;
+    }
+
+    .page { flex: 1; padding: 24px 20px 32px; }
+    .wrap { width: min(1150px, 100%); margin: 0 auto; }
+
+    /* ── Navbar ── */
+    .navbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 28px;
+      padding-bottom: 18px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .brand { display: flex; align-items: center; gap: 12px; }
+
+    .brand-logo {
+      width: 44px; height: 44px;
+      object-fit: contain;
+      border-radius: 50%;
+      background: white;
+      padding: 3px;
+      box-shadow: 0 2px 10px rgba(212,0,0,.18);
+    }
+
+    .brand-name {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 20px;
+      font-weight: 900;
+      color: var(--red);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      line-height: 1.1;
+    }
+
+    .brand-sub {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--muted);
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    .nav { display: flex; gap: 8px; flex-wrap: wrap; }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 9px 14px;
+      border-radius: 9px;
+      border: 1.5px solid var(--border);
+      background: var(--white);
+      color: var(--text);
+      text-decoration: none;
+      font-family: 'Barlow', sans-serif;
       font-size: 13px;
-      margin-bottom: 12px;
-    }
-    .success{
-      border:1px solid rgba(34,197,94,.30);
-      background: rgba(34,197,94,.10);
-      padding: 10px 12px;
-      border-radius: 14px;
-      color: rgba(255,255,255,.92);
-      font-size: 13px;
-      margin-bottom: 12px;
-    }
-
-    /* Grid */
-    .grid{
-      display:grid;
-      grid-template-columns: 420px 1fr;
-      gap:12px;
-      align-items:start;
-    }
-    @media (max-width: 980px){
-      .grid{grid-template-columns:1fr}
-    }
-
-    /* Form panels */
-    .panel{
-      background: rgba(255,255,255,.05);
-      border:1px solid rgba(255,255,255,.10);
-      border-radius:18px;
-      padding: 14px;
-    }
-    .panelTitle{margin:0;font-size:14px;font-weight:950}
-    .panelSub{margin:6px 0 0;color:var(--muted);font-size:12px;line-height:1.4}
-    .actionsRow{margin-top:12px;display:flex;gap:10px;flex-wrap:wrap}
-    .actionsRow .btn{flex:1}
-
-    /* Table */
-    table{width:100%;border-collapse:separate;border-spacing:0 10px}
-    th{
-      text-align:left;
-      color:rgba(255,255,255,.70);
-      font-size:12px;
-      font-weight:900;
-      padding: 0 10px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s;
       white-space: nowrap;
     }
-    td{
-      padding: 12px 10px;
-      background: rgba(255,255,255,.05);
-      border-top: 1px solid rgba(255,255,255,.10);
-      border-bottom: 1px solid rgba(255,255,255,.10);
-      font-size: 14px;
-      vertical-align: middle;
-    }
-    td:first-child{
-      border-left: 1px solid rgba(255,255,255,.10);
-      border-top-left-radius: 14px;
-      border-bottom-left-radius: 14px;
-    }
-    td:last-child{
-      border-right: 1px solid rgba(255,255,255,.10);
-      border-top-right-radius: 14px;
-      border-bottom-right-radius: 14px;
-    }
-    .muted{color:var(--muted);font-size:12px}
-    .badge{
-      display:inline-flex;align-items:center;gap:8px;
-      padding:8px 10px;border-radius:999px;
-      border:1px solid rgba(255,255,255,.14);
-      background:rgba(255,255,255,.06);
-      font-size:12px;font-weight:950;
-      white-space:nowrap;
-    }
-    .bDot{width:8px;height:8px;border-radius:999px}
-    .ok{background:var(--ok)}
-    .warn{background:var(--warn)}
-    .role{font-weight:950;letter-spacing:.2px}
-    .tblActions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
-    .mini{
-      padding:9px 10px;
-      border-radius:12px;
-      font-size:12px;
-      width:auto;
-    }
 
-    /* Reset password */
-    .resetWrap{
-      margin-top:10px;
-      padding-top:10px;
-      border-top:1px dashed rgba(255,255,255,.12);
-    }
-    .resetRow{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
-    .resetRow .input{flex:1; min-width: 160px}
+    .btn:hover       { border-color: #bbb; background: #f9f9f9; }
+    .btn-primary     { background: var(--red); border-color: var(--red); color: white; }
+    .btn-primary:hover { background: var(--red-dk); border-color: var(--red-dk); }
+    .btn-ghost       { background: transparent; color: var(--muted); }
+    .btn-ghost:hover { color: var(--text); border-color: #aaa; }
 
-    /* ✅ Mobile scroll: wrapper */
-    .tableScroll{
-      overflow-x:auto;
-      -webkit-overflow-scrolling: touch;
-      padding-bottom: 6px;
-    }
-    /* Haz que la tabla tenga un mínimo (para que en móvil se pueda desplazar) */
-    .tableMin{
-      min-width: 860px;
-    }
-
-    /* ✅ Modal */
-    .modalBack{
-      position:fixed;
-      inset:0;
-      background: rgba(0,0,0,.55);
-      display:none;
-      align-items:center;
-      justify-content:center;
-      padding: 18px;
-      z-index: 50;
-    }
-    .modalBack.open{display:flex;}
-    .modal{
-      width: min(520px, 100%);
-      background: rgba(15,23,42,.92);
-      border: 1px solid rgba(255,255,255,.12);
-      border-radius: 18px;
-      box-shadow: var(--shadow);
-      overflow:hidden;
-      backdrop-filter: blur(10px);
-    }
-    .modalHead{
-      padding: 16px 16px 12px;
-      border-bottom: 1px solid rgba(255,255,255,.12);
-      display:flex;
-      align-items:flex-start;
-      justify-content:space-between;
-      gap: 10px;
-    }
-    .modalTitle{margin:0;font-size:16px;font-weight:950}
-    .modalSub{margin:6px 0 0;color:var(--muted);font-size:12px;line-height:1.4}
-    .modalBody{padding: 14px 16px 16px;}
-    .field{margin-top:12px}
-    .label{font-size:12px;color:var(--muted);margin-bottom:6px}
-    .input,select{
-      width:100%;
-      border-radius:14px;
-      border:1px solid rgba(255,255,255,.14);
-      background:rgba(255,255,255,.06);
-      padding:10px 12px;
-      color:var(--text);
-      outline:none;
-      font-size:14px;
-    }
-    select option{background:#0b1220}
-    .modalActions{
-      margin-top: 14px;
-      display:flex;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-    .modalActions .btn{flex:1; min-width: 160px;}
-    .xbtn{
-      border: 1px solid rgba(255,255,255,.16);
-      background: rgba(255,255,255,.08);
-      border-radius: 12px;
-      padding: 8px 10px;
-      cursor: pointer;
+    .btn-sm {
+      padding: 6px 10px;
+      font-size: 12px;
+      border-radius: 7px;
+      border: 1.5px solid var(--border);
+      background: var(--white);
       color: var(--text);
-      font-weight: 950;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      display: inline-flex;
+      align-items: center;
+      transition: border-color 0.12s, background 0.12s;
     }
+
+    .btn-sm:hover         { border-color: #bbb; background: #f5f5f5; }
+    .btn-sm-red           { background: var(--red-lt); border-color: var(--red-br); color: var(--red); }
+    .btn-sm-red:hover     { background: rgba(212,0,0,.14); }
+    .btn-sm-green         { background: var(--ok-lt); border-color: var(--ok-br); color: var(--ok); }
+    .btn-sm-green:hover   { background: rgba(22,163,74,.18); }
+    .btn-sm-primary       { background: var(--red); border-color: var(--red); color: white; }
+    .btn-sm-primary:hover { background: var(--red-dk); }
+
+    /* ── Layout ── */
+    .layout {
+      display: grid;
+      grid-template-columns: 320px 1fr;
+      gap: 16px;
+      align-items: start;
+    }
+
+    @media (max-width: 900px) {
+      .layout { grid-template-columns: 1fr; }
+    }
+
+    /* ── Alertas ── */
+    .alert {
+      padding: 11px 14px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 14px;
+      line-height: 1.4;
+    }
+
+    .alert-err  { border: 1.5px solid var(--red-br);  background: var(--red-lt);  color: var(--red); }
+    .alert-ok   { border: 1.5px solid var(--ok-br);   background: var(--ok-lt);   color: var(--ok); }
+
+    /* ── Panel lateral ── */
+    .side-card {
+      background: var(--white);
+      border: 1.5px solid var(--border);
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: 0 1px 4px rgba(0,0,0,.05);
+    }
+
+    .side-head {
+      background: var(--red);
+      padding: 16px 18px 14px;
+    }
+
+    .side-title {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 16px;
+      font-weight: 900;
+      color: white;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+
+    .side-sub { margin-top: 3px; font-size: 12px; color: rgba(255,255,255,.75); line-height: 1.4; }
+
+    .side-body { padding: 16px 18px; }
+
+    .side-actions { display: flex; flex-direction: column; gap: 8px; margin-bottom: 18px; }
+    .side-actions .btn { width: 100%; }
+
+    .notes-title {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--muted);
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .note-item {
+      font-size: 12px;
+      color: var(--text);
+      line-height: 1.6;
+      padding: 5px 0;
+      border-bottom: 1px solid #f0f0f0;
+      display: flex;
+      gap: 8px;
+    }
+
+    .note-item:last-child { border-bottom: none; }
+    .note-dot { color: var(--red); font-weight: 700; flex-shrink: 0; }
+
+    /* ── Card tabla ── */
+    .main-card {
+      background: var(--white);
+      border: 1.5px solid var(--border);
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: 0 1px 4px rgba(0,0,0,.05);
+    }
+
+    .main-head {
+      padding: 16px 20px 14px;
+      border-bottom: 1.5px solid var(--border);
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .main-title {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 17px;
+      font-weight: 900;
+      color: var(--text);
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+
+    .main-count {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    /* Tabla */
+    .table-scroll {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    table { width: 100%; min-width: 820px; border-collapse: collapse; }
+
+    thead { background: #f8f8f8; border-bottom: 1.5px solid var(--border); }
+
+    th {
+      text-align: left;
+      padding: 10px 14px;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--muted);
+      letter-spacing: 0.7px;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    tbody tr { border-bottom: 1px solid var(--border); transition: background 0.1s; }
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:hover { background: #fafafa; }
+
+    td {
+      padding: 12px 14px;
+      font-size: 13px;
+      vertical-align: top;
+    }
+
+    .td-user-main { font-weight: 700; font-size: 14px; }
+    .td-user-sub  { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+    /* Badges */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.4px;
+      white-space: nowrap;
+    }
+
+    .badge-dot { width: 6px; height: 6px; border-radius: 50%; }
+
+    .badge-active   { background: var(--ok-lt);   color: var(--ok);   border: 1.5px solid var(--ok-br); }
+    .badge-inactive { background: var(--warn-lt);  color: var(--warn); border: 1.5px solid var(--warn-br); }
+    .badge-role     { background: #f0f0f0; color: #444; border: 1.5px solid #ddd; font-size: 11px; }
+    .badge-super    { background: var(--red-lt); color: var(--red); border: 1.5px solid var(--red-br); }
+
+    .badge-active   .badge-dot { background: var(--ok); }
+    .badge-inactive .badge-dot { background: var(--warn); }
+
+    .td-muted { font-size: 12px; color: var(--muted); line-height: 1.5; }
+
+    /* Acciones tabla */
+    .td-actions { display: flex; flex-direction: column; gap: 6px; align-items: flex-end; }
+
+    /* Reset password en tabla */
+    .reset-form { margin-top: 6px; padding-top: 6px; border-top: 1px dashed var(--border); }
+    .reset-row  { display: flex; gap: 6px; align-items: center; }
+    .reset-input {
+      flex: 1;
+      min-width: 130px;
+      padding: 6px 10px;
+      border: 1.5px solid var(--border);
+      border-radius: 7px;
+      font-family: 'Barlow', sans-serif;
+      font-size: 12px;
+      color: var(--text);
+      background: #fafafa;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    .reset-input:focus { border-color: var(--red); }
+    .reset-hint { font-size: 11px; color: var(--muted); margin-top: 4px; }
+
+    .scroll-hint { font-size: 12px; color: var(--muted); padding: 10px 20px; text-align: center; }
+
+    /* ── Modal editar ── */
+    .modal-back {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,.35);
+      display: none; align-items: center; justify-content: center;
+      padding: 18px; z-index: 50;
+    }
+    .modal-back.open { display: flex; }
+
+    .modal {
+      width: min(500px, 100%);
+      background: white;
+      border: 1.5px solid var(--border);
+      border-radius: 16px;
+      box-shadow: 0 20px 60px rgba(0,0,0,.14);
+      overflow: hidden;
+    }
+
+    .modal-head {
+      padding: 18px 20px 14px;
+      background: var(--red);
+      display: flex; align-items: flex-start; justify-content: space-between; gap: 10px;
+    }
+
+    .modal-title { font-family: 'Barlow Condensed', sans-serif; font-size: 19px; font-weight: 900; color: white; text-transform: uppercase; letter-spacing: 0.3px; }
+    .modal-sub   { margin-top: 3px; font-size: 12px; color: rgba(255,255,255,.75); }
+
+    .modal-close {
+      border: 1.5px solid rgba(255,255,255,.30);
+      background: rgba(255,255,255,.15);
+      border-radius: 8px; padding: 6px 10px;
+      cursor: pointer; color: white; font-weight: 700; font-size: 13px; flex-shrink: 0;
+    }
+    .modal-close:hover { background: rgba(255,255,255,.25); }
+
+    .modal-body { padding: 20px; }
+
+    .m-field { margin-bottom: 14px; }
+
+    .m-label {
+      display: block;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--muted);
+      letter-spacing: 0.9px;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .m-input, .m-select {
+      width: 100%;
+      padding: 10px 13px;
+      border: 1.5px solid var(--border);
+      border-radius: 9px;
+      font-family: 'Barlow', sans-serif;
+      font-size: 14px;
+      color: var(--text);
+      background: #fafafa;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+
+    .m-input:focus, .m-select:focus { border-color: var(--red); background: white; }
+    .m-input:disabled { opacity: 0.55; cursor: not-allowed; }
+
+    .m-select {
+      appearance: none;
+      -webkit-appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23666' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      background-color: #fafafa;
+      padding-right: 36px;
+      cursor: pointer;
+    }
+
+    .m-hint { font-size: 12px; color: var(--muted); margin-top: 5px; }
+
+    .modal-actions { display: flex; gap: 10px; margin-top: 18px; flex-wrap: wrap; }
+    .modal-actions .btn { flex: 1; min-width: 130px; }
   </style>
 </head>
-
 <body>
   <% const isSuper = (role === "SUPERADMIN"); %>
 
-  <div class="wrap">
-    <div class="top">
-      <div class="brand"><span class="dot"></span><span>FENATS · Usuarios Admin</span></div>
-      <div class="nav">
-        <a class="btn" href="/admin">Panel</a>
-        <a class="btn" href="/admin/members">Socios</a>
-        <% if (isSuper) { %>
-          <a class="btn btnPrimary" href="/admin/users/new">Nuevo usuario</a>
-        <% } %>
-        <a class="btn" href="/admin/logout">Salir</a>
-      </div>
-    </div>
+  <div class="page">
+    <div class="wrap">
 
-    <div class="card">
-      <div class="head">
-        <h1>Gestión de usuarios</h1>
-        <p>Solo <b>SUPERADMIN</b> puede crear, activar/inactivar, editar rol y resetear contraseñas.</p>
-      </div>
+      <!-- Navbar -->
+      <nav class="navbar">
+        <div class="brand">
+          <img class="brand-logo" src="/assets/screenshots/logo_fenats.jpeg" alt="Logo FENATS" />
+          <div>
+            <div class="brand-name">FENATS</div>
+            <div class="brand-sub">Octava Región · Usuarios Admin</div>
+          </div>
+        </div>
+        <div class="nav">
+          <a class="btn" href="/admin">Panel</a>
+          <a class="btn" href="/admin/members">Socios</a>
+          <% if (isSuper) { %>
+            <a class="btn btn-primary" href="/admin/users/new">Nuevo usuario</a>
+          <% } %>
+          <a class="btn btn-ghost" href="/admin/logout">Salir</a>
+        </div>
+      </nav>
 
-      <div class="body">
-        <% if (error) { %>
-          <div class="alert"><b>Error:</b> <%= error %></div>
-        <% } %>
+      <% if (error) { %>
+        <div class="alert alert-err"><b>Error:</b> <%= error %></div>
+      <% } %>
+      <% if (message) { %>
+        <div class="alert alert-ok"><b>OK:</b> <%= message %></div>
+      <% } %>
 
-        <% if (message) { %>
-          <div class="success"><b>OK:</b> <%= message %></div>
-        <% } %>
+      <div class="layout">
 
-        <div class="grid">
-          <!-- Panel info/atajos -->
-          <div class="panel">
-            <div class="panelTitle">Acciones rápidas</div>
-            <div class="panelSub">
-              Crea usuarios desde “Nuevo usuario”. Aquí puedes administrar estado, editar rol/teléfono y resetear contraseña.
-            </div>
-
-            <div class="actionsRow">
+        <!-- Panel lateral -->
+        <div class="side-card">
+          <div class="side-head">
+            <div class="side-title">Acciones rápidas</div>
+            <div class="side-sub">Administra estados, roles y contraseñas de usuarios.</div>
+          </div>
+          <div class="side-body">
+            <div class="side-actions">
               <% if (isSuper) { %>
-                <a class="btn btnPrimary" href="/admin/users/new">Crear usuario</a>
+                <a class="btn btn-primary" href="/admin/users/new">Crear usuario</a>
               <% } %>
-              <a class="btn" href="/admin/users">Refrescar</a>
+              <a class="btn" href="/admin/users">Refrescar lista</a>
             </div>
 
-            <div class="resetWrap">
-              <div class="panelTitle" style="margin-top:6px">Notas</div>
-              <div class="panelSub">
-                • Un usuario <b>inactivo</b> no puede iniciar sesión.<br/>
-                • Roles: <b>VIEWER</b> (solo lectura), <b>ADMIN</b> (gestión socios), <b>SUPERADMIN</b> (todo).<br/>
-                • Teléfono: pensado para <b>2FA</b> (WhatsApp/SMS) a futuro.
-              </div>
-            </div>
+            <div class="notes-title">Notas del sistema</div>
+            <div class="note-item"><span class="note-dot">·</span><span>Un usuario <b>inactivo</b> no puede iniciar sesión.</span></div>
+            <div class="note-item"><span class="note-dot">·</span><span><b>VIEWER</b>: solo lectura del padrón.</span></div>
+            <div class="note-item"><span class="note-dot">·</span><span><b>ADMIN</b>: gestión completa de socios.</span></div>
+            <div class="note-item"><span class="note-dot">·</span><span><b>SUPERADMIN</b>: acceso total incluyendo usuarios.</span></div>
+            <div class="note-item"><span class="note-dot">·</span><span>El teléfono está reservado para 2FA por WhatsApp/SMS a futuro.</span></div>
+          </div>
+        </div>
+
+        <!-- Tabla de usuarios -->
+        <div class="main-card">
+          <div class="main-head">
+            <div class="main-title">Usuarios existentes</div>
+            <div class="main-count">Total: <b><%= users.length %></b></div>
           </div>
 
-          <!-- Tabla -->
-          <div class="panel" style="padding:0; overflow:hidden;">
-            <div style="padding:14px 14px 0;">
-              <div class="panelTitle">Usuarios existentes</div>
-              <div class="panelSub">Total: <b><%= users.length %></b></div>
-            </div>
+          <div class="table-scroll">
+            <table>
+              <thead>
+                <tr>
+                  <th>Usuario</th>
+                  <th>Rol</th>
+                  <th>Estado</th>
+                  <th>Correo</th>
+                  <th>Teléfono</th>
+                  <th>Fechas</th>
+                  <th style="text-align:right">Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% users.forEach(function(u) { %>
+                  <tr>
+                    <td>
+                      <div class="td-user-main"><%= u.username %></div>
+                      <div class="td-user-sub">ID: <%= u.id %></div>
+                    </td>
 
-            <div style="padding:10px 14px 14px;">
-              <div class="tableScroll">
-                <table class="tableMin">
-                  <thead>
-                    <tr>
-                      <th>Usuario</th>
-                      <th>Rol</th>
-                      <th>Estado</th>
-                      <th>Correo</th>
-                      <th>Teléfono</th>
-                      <th>Fechas</th>
-                      <th style="text-align:right">Acciones</th>
-                    </tr>
-                  </thead>
+                    <td>
+                      <span class="badge <%= u.role === 'SUPERADMIN' ? 'badge-super' : 'badge-role' %>">
+                        <%= u.role %>
+                      </span>
+                    </td>
 
-                  <tbody>
-                    <% users.forEach(u => { %>
-                      <tr>
-                        <td>
-                          <div style="font-weight:950"><%= u.username %></div>
-                          <div class="muted">ID: <%= u.id %></div>
-                        </td>
+                    <td>
+                      <% if (u.isActive) { %>
+                        <span class="badge badge-active"><span class="badge-dot"></span>Activo</span>
+                      <% } else { %>
+                        <span class="badge badge-inactive"><span class="badge-dot"></span>Inactivo</span>
+                      <% } %>
+                    </td>
 
-                        <td>
-                          <span class="badge">
-                            <span class="bDot" style="background: rgba(255,255,255,.55)"></span>
-                            <span class="role"><%= u.role %></span>
-                          </span>
-                        </td>
+                    <td class="td-muted"><%= u.email ?? "-" %></td>
+                    <td class="td-muted"><%= u.phone ?? "-" %></td>
 
-                        <td>
-                          <% if (u.isActive) { %>
-                            <span class="badge"><span class="bDot ok"></span>ACTIVO</span>
-                          <% } else { %>
-                            <span class="badge"><span class="bDot warn"></span>INACTIVO</span>
-                          <% } %>
-                        </td>
+                    <td class="td-muted">
+                      <div>Creado: <%= new Date(u.createdAt).toLocaleString("es-CL") %></div>
+                      <div>Upd: <%= new Date(u.updatedAt).toLocaleString("es-CL") %></div>
+                    </td>
 
-                        <td class="muted">
-                        <%= (u.email ?? "-") %>
-                        </td>
+                    <td>
+                      <div class="td-actions">
+                        <% if (isSuper) { %>
+                          <button
+                            class="btn-sm"
+                            type="button"
+                            data-edit
+                            data-id="<%= u.id %>"
+                            data-username="<%= u.username %>"
+                            data-role="<%= u.role %>"
+                            data-phone="<%= u.phone ?? '' %>"
+                            data-email="<%= u.email ?? '' %>"
+                          >Editar</button>
 
-                        <td class="muted">
-                          <%= (u.phone ?? "-") %>
-                        </td>
-
-                        <td class="muted">
-                          <div>Creado: <%= new Date(u.createdAt).toLocaleString("es-CL") %></div>
-                          <div>Upd: <%= new Date(u.updatedAt).toLocaleString("es-CL") %></div>
-                        </td>
-
-                        <td>
-                          <div class="tblActions">
-                            <% if (isSuper) { %>
-                              <!-- Editar (modal) -->
-                              <button
-                                class="btn mini"
-                                type="button"
-                                data-edit
-                                data-id="<%= u.id %>"
-                                data-username="<%= u.username %>"
-                                data-role="<%= u.role %>"
-                                data-phone="<%= u.phone ?? '' %>"
-                                data-email="<%= u.email ?? '' %>"
-                              >
-                                Editar
-                              </button>
-
-                              <!-- Toggle -->
-                              <form method="post" action="/admin/users/<%= u.id %>/toggle" style="display:inline">
-                                <% if (u.isActive) { %>
-                                  <button class="btn mini btnDanger" type="submit">Inactivar</button>
-                                <% } else { %>
-                                  <button class="btn mini btnOk" type="submit">Activar</button>
-                                <% } %>
-                              </form>
+                          <form method="post" action="/admin/users/<%= u.id %>/toggle">
+                            <% if (u.isActive) { %>
+                              <button class="btn-sm btn-sm-red" type="submit">Inactivar</button>
                             <% } else { %>
-                              <span class="muted">Sin acciones</span>
+                              <button class="btn-sm btn-sm-green" type="submit">Activar</button>
                             <% } %>
-                          </div>
+                          </form>
+                        <% } else { %>
+                          <span class="td-muted">Sin acciones</span>
+                        <% } %>
+                      </div>
 
-                          <% if (isSuper) { %>
-                            <!-- Reset password -->
-                            <form method="post" action="/admin/users/<%= u.id %>/reset-password" class="resetWrap">
-                              <div class="resetRow">
-                                <input class="input" type="password" name="password" placeholder="Nueva contraseña" required />
-                                <button class="btn mini btnPrimary" type="submit">Reset</button>
-                              </div>
-                              <div class="muted" style="margin-top:6px">
-                                Cambia la contraseña del usuario <b><%= u.username %></b>.
-                              </div>
-                            </form>
-                          <% } %>
-                        </td>
-                      </tr>
-                    <% }) %>
+                      <% if (isSuper) { %>
+                        <div class="reset-form">
+                          <form method="post" action="/admin/users/<%= u.id %>/reset-password">
+                            <div class="reset-row">
+                              <input class="reset-input" type="password" name="password" placeholder="Nueva contraseña" required />
+                              <button class="btn-sm btn-sm-primary" type="submit">Reset</button>
+                            </div>
+                            <div class="reset-hint">Resetear contraseña de <b><%= u.username %></b></div>
+                          </form>
+                        </div>
+                      <% } %>
+                    </td>
+                  </tr>
+                <% }) %>
 
-                    <% if (!users || users.length === 0) { %>
-                      <tr>
-                        <td colspan="7" style="text-align:center" class="muted">
-                          No hay usuarios registrados.
-                        </td>
-                      </tr>
-                    <% } %>
-                  </tbody>
-                </table>
-              </div>
-
-              <div class="muted" style="margin-top:8px">
-                En móvil: desliza horizontalmente para ver todas las columnas.
-              </div>
-            </div>
+                <% if (!users || users.length === 0) { %>
+                  <tr>
+                    <td colspan="7" style="text-align:center;padding:24px" class="td-muted">
+                      No hay usuarios registrados.
+                    </td>
+                  </tr>
+                <% } %>
+              </tbody>
+            </table>
           </div>
+
+          <div class="scroll-hint">En móvil: desliza horizontalmente para ver todas las columnas.</div>
         </div>
 
       </div>
     </div>
   </div>
 
-  <!-- ✅ Modal editar usuario -->
-  <div id="modalBack" class="modalBack" aria-hidden="true">
+  <!-- Modal editar usuario -->
+  <div id="modalBack" class="modal-back" aria-hidden="true">
     <div class="modal" role="dialog" aria-modal="true" aria-labelledby="mTitle">
-      <div class="modalHead">
+      <div class="modal-head">
         <div>
-          <h2 id="mTitle" class="modalTitle">Editar usuario</h2>
-          <div class="modalSub" id="mSub">Cambia rol y teléfono para 2FA(a futuro).</div>
+          <div id="mTitle" class="modal-title">Editar usuario</div>
+          <div class="modal-sub">Cambia rol, correo y teléfono.</div>
         </div>
-        <button class="xbtn" type="button" id="closeModal">✕</button>
+        <button class="modal-close" type="button" id="closeModal">✕</button>
       </div>
 
-      <div class="modalBody">
+      <div class="modal-body">
         <form id="editForm" method="post" action="">
-          <div class="field">
-            <div class="label">Usuario</div>
-            <input class="input" id="mUsername" type="text" value="" disabled />
+
+          <div class="m-field">
+            <label class="m-label">Usuario</label>
+            <input class="m-input" id="mUsername" type="text" disabled />
           </div>
 
-          <div class="field">
-          <div class="label">Correo</div>
-          <input class="input" id="mEmail" name="email" type="email" placeholder="usuario@dominio.cl" />
+          <div class="m-field">
+            <label class="m-label" for="mEmail">Correo</label>
+            <input class="m-input" id="mEmail" name="email" type="email" placeholder="usuario@dominio.cl" />
           </div>
 
-          <div class="field">
-            <div class="label">Rol</div>
-            <select id="mRole" name="role" required>
-              <option value="VIEWER">VIEWER (solo lectura)</option>
-              <option value="ADMIN">ADMIN (gestión socios)</option>
-              <option value="SUPERADMIN">SUPERADMIN (todo)</option>
+          <div class="m-field">
+            <label class="m-label" for="mRole">Rol</label>
+            <select class="m-select" id="mRole" name="role" required>
+              <option value="VIEWER">VIEWER — solo lectura</option>
+              <option value="ADMIN">ADMIN — gestión de socios</option>
+              <option value="SUPERADMIN">SUPERADMIN — acceso total</option>
             </select>
           </div>
 
-          <div class="field">
-            <div class="label">Teléfono (opcional)</div>
-            <input
-              class="input"
-              id="mPhone"
-              name="phone"
-              type="text"
-              placeholder="Ej: +56912345678"
-            />
-            <div class="muted" style="margin-top:6px">
-              Recomendado formato internacional: <b>+56...</b>
-            </div>
+          <div class="m-field">
+            <label class="m-label" for="mPhone">Teléfono (opcional)</label>
+            <input class="m-input" id="mPhone" name="phone" type="text" placeholder="+56912345678" />
+            <div class="m-hint">Formato internacional recomendado: <b>+56…</b></div>
           </div>
 
-          <div class="modalActions">
-            <button class="btn btnPrimary" type="submit">Guardar cambios</button>
+          <div class="modal-actions">
+            <button class="btn btn-primary" type="submit">Guardar cambios</button>
             <button class="btn" type="button" id="cancelModal">Cancelar</button>
           </div>
         </form>
@@ -484,55 +630,34 @@
   </div>
 
   <script>
-  const modalBack = document.getElementById("modalBack");
-  const editForm = document.getElementById("editForm");
-  const mUsername = document.getElementById("mUsername");
-  const mRole = document.getElementById("mRole");
-  const mPhone = document.getElementById("mPhone");
-  const mEmail = document.getElementById("mEmail"); 
+    const modalBack = document.getElementById("modalBack");
+    const editForm  = document.getElementById("editForm");
+    const mUsername = document.getElementById("mUsername");
+    const mRole     = document.getElementById("mRole");
+    const mPhone    = document.getElementById("mPhone");
+    const mEmail    = document.getElementById("mEmail");
 
-  const closeBtn = document.getElementById("closeModal");
-  const cancelBtn = document.getElementById("cancelModal");
+    function openModal()  { modalBack.classList.add("open"); modalBack.setAttribute("aria-hidden","false"); }
+    function closeModal() { modalBack.classList.remove("open"); modalBack.setAttribute("aria-hidden","true"); }
 
-  function openModal() {
-    modalBack.classList.add("open");
-    modalBack.setAttribute("aria-hidden", "false");
-  }
-  function closeModal() {
-    modalBack.classList.remove("open");
-    modalBack.setAttribute("aria-hidden", "true");
-  }
+    document.getElementById("closeModal").addEventListener("click", closeModal);
+    document.getElementById("cancelModal").addEventListener("click", closeModal);
+    modalBack.addEventListener("click", (e) => { if (e.target === modalBack) closeModal(); });
+    document.addEventListener("keydown", (e) => { if (e.key === "Escape" && modalBack.classList.contains("open")) closeModal(); });
 
-  modalBack.addEventListener("click", (e) => {
-    if (e.target === modalBack) closeModal();
-  });
-  closeBtn.addEventListener("click", closeModal);
-  cancelBtn.addEventListener("click", closeModal);
-
-  document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape" && modalBack.classList.contains("open")) closeModal();
-  });
-
-  document.querySelectorAll("[data-edit]").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      const id = btn.getAttribute("data-id");
-      const username = btn.getAttribute("data-username") || "";
-      const role = (btn.getAttribute("data-role") || "VIEWER").toUpperCase();
-      const phone = btn.getAttribute("data-phone") || "";
-      const email = btn.getAttribute("data-email") || ""; 
-
-      editForm.action = `/admin/users/${id}/update`;
-
-      mUsername.value = username;
-      mRole.value = role;
-      mPhone.value = phone;
-      mEmail.value = email; 
-
-      openModal();
+    document.querySelectorAll("[data-edit]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        editForm.action = `/admin/users/${btn.dataset.id}/update`;
+        mUsername.value = btn.dataset.username || "";
+        mRole.value     = (btn.dataset.role || "VIEWER").toUpperCase();
+        mPhone.value    = btn.dataset.phone || "";
+        mEmail.value    = btn.dataset.email || "";
+        openModal();
+      });
     });
-  });
-</script>
-<%- include("../partials/footer") %>
+  </script>
+
+  <%- include("../partials/footer") %>
 </body>
 </html>
 
